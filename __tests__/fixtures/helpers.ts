@@ -1,4 +1,4 @@
-import { LambdaFlowCallback } from "types";
+import { LambdaFlowCallback } from "../../src/types";
 import { lambdaContext, lambdaEvent } from "./data";
 
 export const lambdaExecutor = (lambdaFlowCallback: LambdaFlowCallback) =>

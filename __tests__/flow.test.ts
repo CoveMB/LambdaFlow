@@ -1,8 +1,3 @@
-// contextFlow(simpleSuccess(877))(
-//   (lambdaEvent as unknown) as APIGatewayEvent,
-//   (lambdaContext as unknown) as Context,
-//   ((() => {}) as unknown) as Callback<APIGatewayProxyResult>
-// );
 import { lambdaFlow, simpleResponse } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
 
