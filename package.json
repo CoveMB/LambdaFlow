@@ -1,0 +1,56 @@
+{
+  "name": "@bjmrq/lambda-flow",
+  "version": "0.0.2",
+  "description": "A little utility to flow data in lambda functions",
+  "author": "Benjamin Marquis",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BjMrq/LambdaFlow"
+  },
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src/**/*"
+  ],
+  "scripts": {
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && tsc",
+    "dev": "tsc-watch --project ./tsconfig.json --noClear --onSuccess \"node --use-strict --inspect=127.0.0.1:3029 ./dist/src/app.js\"",
+    "test": "jest -i --config jestconfig.json"
+  },
+  "dependencies": {
+    "aws-lambda": "^1.0.6",
+    "fp-ts": "^2.8.4",
+    "ramda": "^0.27.1"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.64",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.10.1",
+    "@types/ramda": "^0.27.30",
+    "@typescript-eslint/eslint-plugin": "^4.1.0",
+    "@typescript-eslint/parser": "^4.1.0",
+    "eslint": "^7.8.1",
+    "eslint-config-airbnb-typescript": "^10.0.0",
+    "eslint-config-hardcore": "^12.9.1",
+    "eslint-config-standard": "14.1.1",
+    "eslint-import-resolver-node": "^0.3.4",
+    "eslint-plugin-eslint-plugin": "^2.3.0",
+    "eslint-plugin-functional": "^3.0.2",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-standard": "4.0.1",
+    "eslint-plugin-unicorn": "^22.0.0",
+    "jest": "^26.6.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.4.2",
+    "ts-node": "^9.0.0",
+    "tsc-watch": "^4.2.9",
+    "typescript": "^4.0.2"
+  }
+}
