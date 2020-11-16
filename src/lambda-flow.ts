@@ -1,7 +1,4 @@
-import { debugLog } from "@bjmrq/utils";
-import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { flow, pipe } from "fp-ts/lib/function";
-import { simpleResponse } from "helpers-middlewares";
 import * as R from "ramda";
 import {
   CreateContext,
