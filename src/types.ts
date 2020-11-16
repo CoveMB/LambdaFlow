@@ -1,23 +1,17 @@
 import {
-  APIGatewayEvent,
   Context,
   Callback,
-  APIGatewayProxyResult,
+  APIGatewayProxyStructuredResultV2,
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResultV2,
 } from "aws-lambda";
 
-export type LambdaContext = {
-  event: APIGatewayEvent;
+export type LambdaContext = APIGatewayProxyStructuredResultV2 & {
+  event: APIGatewayProxyEventV2;
   context: Context;
-  callback: Callback<APIGatewayProxyResult>;
+  callback: Callback<APIGatewayProxyResultV2>;
   state: any;
-  body?: any;
-  status?: number;
   error?: Error;
-};
-
-export type LambdaResponse = {
-  statusCode: number;
-  body: any;
 };
 
 export type FlowAsyncMiddleware<M> = (context: LambdaContext) => M | Promise<M>;
@@ -26,16 +20,16 @@ export type FlowSyncMiddleware<M> = (context: LambdaContext) => M;
 
 export type ResponseMiddleware = (
   context: Promise<LambdaContext>
-) => Promise<LambdaResponse>;
+) => Promise<APIGatewayProxyStructuredResultV2>;
 
 export type AsyncMiddleware = FlowAsyncMiddleware<LambdaContext>;
 
 export type SyncMiddleware = FlowSyncMiddleware<LambdaContext>;
 
 export type CreateContext = (
-  event: APIGatewayEvent,
+  event: APIGatewayProxyEventV2,
   context: Context,
-  callback: Callback<APIGatewayProxyResult>
+  callback: Callback<APIGatewayProxyResultV2>
 ) => LambdaContext;
 
 export type HandleAsyncMiddleware = <
@@ -45,10 +39,10 @@ export type HandleAsyncMiddleware = <
 ) => (context: Promise<LambdaContext>) => Promise<LambdaContext>;
 
 export type LambdaFlowCallback = (
-  event: APIGatewayEvent,
+  event: APIGatewayProxyEventV2,
   context: Context,
-  callback: Callback<APIGatewayProxyResult>
-) => Promise<LambdaResponse>;
+  callback: Callback<APIGatewayProxyResultV2>
+) => Promise<APIGatewayProxyStructuredResultV2>;
 
 export type Middleware = SyncMiddleware | AsyncMiddleware;
 

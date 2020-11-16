@@ -5,6 +5,8 @@ it("return a stringify body", async () => {
   const flow = lambdaFlow(simpleResponse(400));
   const response = await lambdaExecutor(flow);
 
+  console.log(response);
+
   expect(typeof response.body).toBe("string");
 });
 
