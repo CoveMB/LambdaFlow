@@ -14,7 +14,6 @@
     "inlineSourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "sourceMap": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "baseUrl": ".",
