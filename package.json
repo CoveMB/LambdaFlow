@@ -1,6 +1,6 @@
 {
   "name": "@bjmrq/lambda-flow",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "A little utility to flow data in lambda functions",
   "author": "Benjamin Marquis",
   "license": "ISC",
