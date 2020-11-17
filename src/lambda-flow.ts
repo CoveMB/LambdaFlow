@@ -1,64 +1,83 @@
 import { flow, pipe } from "fp-ts/lib/function";
 import * as R from "ramda";
+import { FlowError } from "types/error";
+import { assocIfHas } from "utils/object";
 import {
-  CreateContext,
+  CreateBox,
   LambdaFlow,
-  HandleAsyncMiddleware,
   ResponseMiddleware,
+  ErrorOut,
+  FlowBox,
 } from "./types";
 
-const createContext: CreateContext = (event, context, callback) => ({
+const createBox: CreateBox = (event, context, callback) => ({
   state: {},
   event,
   callback,
   context,
 });
 
-const returnResponse: ResponseMiddleware = async (context) => {
-  const finalContext = await context;
-
-  return pipe(
-    R.empty({}),
-    R.assoc("statusCode", finalContext.statusCode),
+const errorResponse = (finalBox: FlowBox) =>
+  flow(
     R.assoc(
       "body",
-      R.ifElse(R.has("body"), flow(R.prop("body"), JSON.stringify), () =>
-        R.empty("")
-      )(finalContext)
-    ),
-    R.assoc(
-      "headers",
-      R.ifElse(R.has("headers"), R.prop("headers"), () => R.empty(""))(
-        finalContext
+      pipe(
+        R.identity({ status: "error" }),
+        R.assoc(
+          "message",
+          R.ifElse(
+            (error) => R.is(FlowError)(error) && error.expose,
+            R.prop("message"),
+            () => "Internal Server Error"
+          )(finalBox.error)
+        ),
+        JSON.stringify
       )
     ),
     R.assoc(
-      "cookies",
-      R.ifElse(R.has("cookies"), R.prop("cookies"), () => R.empty(""))(
-        finalContext
-      )
-    ),
-    R.assoc(
-      "isBase64Encoded",
+      "statusCode",
       R.ifElse(
-        R.has("isBase64Encoded"),
-        R.prop("isBase64Encoded"),
-        () => false
-      )(finalContext)
+        (error) => R.is(FlowError)(error) && error.expose,
+        (flowError) => flowError.status,
+        () => 500
+      )(finalBox.error)
+    )
+  );
+
+const successResponse = (finalBox: FlowBox) =>
+  flow(
+    assocIfHas("isBase64Encoded", finalBox),
+    R.assoc(
+      "body",
+      R.ifElse(
+        R.has("body"),
+        flow(R.prop("body"), JSON.stringify),
+        () => undefined
+      )(finalBox)
+    ),
+    R.assoc("statusCode", finalBox.statusCode || 200)
+  );
+
+const returnResponse: ResponseMiddleware = async (box) => {
+  const finalBox = await box;
+
+  return pipe(
+    () => R.empty({}),
+    assocIfHas("headers", finalBox),
+    assocIfHas("cookies", finalBox),
+    R.ifElse(
+      () => R.has("error")(finalBox),
+      errorResponse(finalBox),
+      successResponse(finalBox)
     )
   );
 };
 
-const handleAsyncMiddleware: HandleAsyncMiddleware = (middleware) => async (
-  context: any
-) => middleware(await context);
+const errorOut: ErrorOut = (middleware) => async (box) =>
+  R.unless(R.has("error"), middleware)(await box);
 
 const lambdaFlow: LambdaFlow = (...middlewares) =>
   // @ts-ignore
-  flow(
-    createContext,
-    ...R.map(handleAsyncMiddleware)(middlewares),
-    returnResponse
-  );
+  flow(createBox, ...R.map(errorOut)(middlewares), returnResponse);
 
 export { lambdaFlow };
