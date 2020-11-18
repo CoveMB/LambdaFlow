@@ -12,7 +12,7 @@ export type FlowBox = {
   context: Context;
   callback: Callback<APIGatewayProxyResultV2>;
   state: any;
-  error?: Error | FlowError;
+  error?: FlowError;
   statusCode?: number;
   headers?: {
     [header: string]: boolean | number | string;

@@ -1,12 +1,9 @@
-/* eslint-disable unicorn/custom-error-definition */
-/* eslint-disable fp/no-class */
+export type FlowError = Error & {
+  expose: boolean;
+  code: number;
+  error: Error;
+};
 
-export abstract class FlowError extends Error {
-  abstract message: string;
-
-  abstract name: string;
-
-  abstract status: number;
-
-  abstract expose: boolean;
-}
+export type ErrorBuilder = (
+  expose?: boolean
+) => (code?: number) => (error: Error) => FlowError;

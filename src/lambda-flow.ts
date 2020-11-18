@@ -1,7 +1,7 @@
+import { debugLog } from "@bjmrq/utils";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as R from "ramda";
-import { FlowError } from "types/error";
-import { assocIfHas } from "utils/object";
+import { assocIfHas, bodyLens, statusLens, messageLens } from "utils/object";
 import {
   CreateBox,
   LambdaFlow,
@@ -19,34 +19,35 @@ const createBox: CreateBox = (event, context, callback) => ({
 
 const errorResponse = (finalBox: FlowBox) =>
   flow(
-    R.assoc(
-      "body",
-      pipe(
-        R.identity({ status: "error" }),
-        R.assoc(
-          "message",
+    R.over(
+      bodyLens,
+      flow(
+        () => R.identity({ status: "error" }),
+        R.over(
+          messageLens,
           R.ifElse(
-            (error) => R.is(FlowError)(error) && error.expose,
-            R.prop("message"),
+            () => R.pathEq(["error", "expose"], true)(finalBox),
+            () => R.path(["error", "error", "message"])(finalBox),
             () => "Internal Server Error"
-          )(finalBox.error)
+          )
         ),
         JSON.stringify
       )
     ),
-    R.assoc(
-      "statusCode",
+    R.over(
+      statusLens,
       R.ifElse(
-        (error) => R.is(FlowError)(error) && error.expose,
-        (flowError) => flowError.status,
+        () => R.pathEq(["error", "expose"], true)(finalBox),
+        () => R.path(["error", "code"])(finalBox),
         () => 500
-      )(finalBox.error)
+      )
     )
   );
 
 const successResponse = (finalBox: FlowBox) =>
   flow(
     assocIfHas("isBase64Encoded", finalBox),
+    // Make it lens
     R.assoc(
       "body",
       R.ifElse(
