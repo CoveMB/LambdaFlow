@@ -8,6 +8,7 @@
   "testPathIgnorePatterns": [
     "/node_modules/",
     "/__tests__/fixtures/",
+    "/__tests__/.eslintrc.js",
     "/dist/"
   ]
 }

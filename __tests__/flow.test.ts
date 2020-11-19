@@ -3,11 +3,12 @@
 import { lambdaFlow, simpleResponse } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
 
-it("return a stringify body", async () => {
-  const flow = lambdaFlow(simpleResponse(400));
+it("Return a stringify body", async () => {
+  const flow = lambdaFlow(simpleResponse(201));
   const response = await lambdaExecutor(flow);
 
   expect(typeof response.body).toBe("string");
+  expect(response.statusCode).toBe(201);
 });
 
 it("Simple response return a 200 status if not specified", async () => {
@@ -63,4 +64,12 @@ it("Should return body from middleware", async () => {
 
   expect(response.statusCode).toBe(200);
   expect(response.body!).toBe(JSON.stringify(bodyToReturn));
+});
+
+it("If no body no body is returned", async () => {
+  const flow = lambdaFlow((box) => box);
+  const response = await lambdaExecutor(flow);
+
+  expect(typeof response.body).toBe("undefined");
+  expect(response.statusCode).toBe(200);
 });
