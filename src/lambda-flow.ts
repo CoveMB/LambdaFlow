@@ -1,12 +1,25 @@
 import { debugLog } from "@bjmrq/utils";
-import { flow, pipe } from "fp-ts/lib/function";
+import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+import { flow } from "fp-ts/lib/function";
+import { simpleError } from "helpers";
 import * as R from "ramda";
-import { assocIfHas, bodyLens, statusLens, messageLens } from "utils/object";
+import {
+  toStatusCodeErrorResponseLens,
+  responseLens,
+  toCookiesResponseLens,
+  toHeadersResponseLens,
+  toBodyErrorResponseLens,
+  toIsEncodedResponseLens,
+  toStatusResponseLens,
+  toBodySuccessResponseLens,
+} from "utils/lenses";
+import { isErrorExposed } from "utils/props";
 import {
   CreateBox,
   LambdaFlow,
   ResponseMiddleware,
   ErrorOut,
+  FlowErrorSyncMiddleware,
   FlowBox,
 } from "./types";
 
@@ -17,65 +30,53 @@ const createBox: CreateBox = (event, context, callback) => ({
   context,
 });
 
-const errorResponse = (finalBox: FlowBox) =>
-  flow(
-    R.over(
-      bodyLens,
-      flow(
-        () => R.identity({ status: "error" }),
-        R.over(
-          messageLens,
-          R.ifElse(
-            () => R.pathEq(["error", "expose"], true)(finalBox),
-            () => R.path(["error", "error", "message"])(finalBox),
-            () => "Internal Server Error"
-          )
-        ),
-        JSON.stringify
-      )
-    ),
-    R.over(
-      statusLens,
+const errorResponse = flow(
+  R.over(
+    toBodyErrorResponseLens,
+    flow(
       R.ifElse(
-        () => R.pathEq(["error", "expose"], true)(finalBox),
-        () => R.path(["error", "code"])(finalBox),
-        () => 500
-      )
+        isErrorExposed,
+        R.path(["error", "message"]),
+        // R.always
+        R.always("Internal Server Error")
+      ),
+      R.assoc("message", R.__, {}),
+      R.assoc("status", "error"),
+      JSON.stringify
     )
-  );
+  ),
+  R.over(
+    toStatusCodeErrorResponseLens,
+    R.ifElse(isErrorExposed, R.prop("code"), R.always(500))
+  )
+);
 
-const successResponse = (finalBox: FlowBox) =>
+const successResponse = flow(
+  R.over(toIsEncodedResponseLens, R.identity),
+  R.over(toStatusResponseLens, R.unless(R.is(Number), R.always(200))),
+  R.over(
+    toBodySuccessResponseLens,
+    R.unless(R.equals(undefined), flow(R.identity, JSON.stringify))
+  )
+);
+
+const returnResponse: ResponseMiddleware = async (box) =>
   flow(
-    assocIfHas("isBase64Encoded", finalBox),
-    // Make it lens
-    R.assoc(
-      "body",
-      R.ifElse(
-        R.has("body"),
-        flow(R.prop("body"), JSON.stringify),
-        () => undefined
-      )(finalBox)
-    ),
-    R.assoc("statusCode", finalBox.statusCode || 200)
-  );
-
-const returnResponse: ResponseMiddleware = async (box) => {
-  const finalBox = await box;
-
-  return pipe(
-    () => R.empty({}),
-    assocIfHas("headers", finalBox),
-    assocIfHas("cookies", finalBox),
-    R.ifElse(
-      () => R.has("error")(finalBox),
-      errorResponse(finalBox),
-      successResponse(finalBox)
-    )
-  );
-};
+    R.set(responseLens, {}),
+    R.over(toCookiesResponseLens, R.identity),
+    R.over(toHeadersResponseLens, R.identity),
+    R.ifElse(R.has("error"), errorResponse, successResponse),
+    R.prop("response")
+  )(await box) as Promise<APIGatewayProxyStructuredResultV2>;
 
 const errorOut: ErrorOut = (middleware) => async (box) =>
-  R.unless(R.has("error"), middleware)(await box);
+  R.unless(
+    R.has("error"),
+    // @ts-ignore
+    R.tryCatch(middleware, (error: Error, errorBox) =>
+      R.assoc("error", simpleError(error))(errorBox)
+    )
+  )(await box);
 
 const lambdaFlow: LambdaFlow = (...middlewares) =>
   // @ts-ignore

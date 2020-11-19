@@ -21,3 +21,7 @@ export type FlowBox = {
   isBase64Encoded?: boolean;
   cookies?: string[];
 };
+
+export type FlowBoxWithResponse = FlowBox & {
+  response: APIGatewayProxyResultV2;
+};

@@ -1,4 +1,4 @@
-export type FlowError = Error & {
+export type FlowError = {
   expose: boolean;
   code: number;
   error: Error;
