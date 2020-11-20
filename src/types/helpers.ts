@@ -1,4 +1,4 @@
-import { FlowBox } from "./context";
+import { FlowBox } from "./box";
 import { FlowSyncMiddleware, FlowAsyncMiddleware } from "./middleware";
 
 // Middleware helpers

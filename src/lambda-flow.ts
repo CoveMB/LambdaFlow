@@ -3,6 +3,7 @@ import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { flow } from "fp-ts/lib/function";
 import { simpleError } from "helpers";
 import * as R from "ramda";
+import { ErrorCallbackHandler } from "types/error";
 import {
   toStatusCodeErrorResponseLens,
   responseLens,
@@ -14,14 +15,7 @@ import {
   toBodySuccessResponseLens,
 } from "utils/lenses";
 import { isErrorExposed } from "utils/props";
-import {
-  CreateBox,
-  LambdaFlow,
-  ResponseMiddleware,
-  ErrorOut,
-  FlowErrorSyncMiddleware,
-  FlowBox,
-} from "./types";
+import { CreateBox, LambdaFlow, ResponseMiddleware, ErrorOut } from "./types";
 
 const createBox: CreateBox = (event, context, callback) => ({
   state: {},
@@ -37,12 +31,11 @@ const errorResponse = flow(
       R.ifElse(
         isErrorExposed,
         R.path(["error", "message"]),
-        // R.always
         R.always("Internal Server Error")
       ),
       R.assoc("message", R.__, {}),
       R.assoc("status", "error"),
-      JSON.stringify
+      R.unless(R.is(String), JSON.stringify)
     )
   ),
   R.over(
@@ -56,7 +49,7 @@ const successResponse = flow(
   R.over(toStatusResponseLens, R.unless(R.is(Number), R.always(200))),
   R.over(
     toBodySuccessResponseLens,
-    R.unless(R.equals(undefined), flow(R.identity, JSON.stringify))
+    R.unless(R.equals(undefined), R.unless(R.is(String), JSON.stringify))
   )
 );
 
@@ -78,8 +71,26 @@ const errorOut: ErrorOut = (middleware) => async (box) =>
     )
   )(await box);
 
-const lambdaFlow: LambdaFlow = (...middlewares) =>
+// @ts-ignore
+const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
+  box
+) =>
   // @ts-ignore
-  flow(createBox, ...R.map(errorOut)(middlewares), returnResponse);
+  R.when(
+    R.has("error"),
+    flow(R.clone, errorCallback, R.always(await box))
+    // @ts-ignore
+  )(await box);
+
+const lambdaFlow: LambdaFlow = (...middlewares) => (
+  errorCallback = R.identity
+) =>
+  // @ts-ignore
+  flow(
+    createBox,
+    ...R.map(errorOut)(middlewares),
+    errorCallbackHandler(errorCallback),
+    returnResponse
+  );
 
 export { lambdaFlow };

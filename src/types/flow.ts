@@ -3,8 +3,9 @@ import {
   Callback,
   APIGatewayProxyResultV2,
   APIGatewayProxyStructuredResultV2,
+  Context,
 } from "aws-lambda";
-import { Context } from "vm";
+import { ErrorCallback } from "./error";
 import { FlowMiddleware } from "./middleware";
 
 //  Lambda Flow
@@ -16,4 +17,4 @@ export type LambdaFlowCallback = (
 
 export type LambdaFlow = (
   ...middlewares: Array<FlowMiddleware>
-) => LambdaFlowCallback;
+) => (errorCallback?: ErrorCallback) => LambdaFlowCallback;

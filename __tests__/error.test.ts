@@ -1,5 +1,3 @@
-/* eslint-disable fp/no-mutation */
-/* eslint-disable no-param-reassign */
 import {
   lambdaFlow,
   nonExposedError,
@@ -21,7 +19,7 @@ it("If an error occur during the flow it is returned in the body", async () => {
     }
 
     return box;
-  }, simpleResponse());
+  }, simpleResponse())();
 
   const response = await lambdaExecutor(flow);
 
@@ -44,7 +42,7 @@ it("If an exposed FlowError occur during the flow it is return it's message", as
     }
 
     return box;
-  }, simpleResponse());
+  }, simpleResponse())();
 
   const response = await lambdaExecutor(flow);
 
@@ -67,7 +65,7 @@ it("If an non exposed FlowError occur during the flow it is return it's message"
     }
 
     return box;
-  }, simpleResponse());
+  }, simpleResponse())();
 
   const response = await lambdaExecutor(flow);
 
@@ -80,8 +78,10 @@ it("If an non exposed FlowError occur during the flow it is return it's message"
 
 it("If an error occur and is not catch it is transform as a basic FlowError", async () => {
   const flow = lambdaFlow((box) => {
+    box.statusCode = 899;
+
     throw new Error("Not found");
-  }, simpleResponse());
+  }, simpleResponse())();
 
   const response = await lambdaExecutor(flow);
 
@@ -90,4 +90,41 @@ it("If an error occur and is not catch it is transform as a basic FlowError", as
   expect(response.statusCode).toBe(500);
   expect(body.status).toBe("error");
   expect(body.message).toBe("Internal Server Error");
+});
+
+it("If an error callback is supply it execute if an error occurres", async () => {
+  let toMutate = "Not mutated";
+
+  const flow = lambdaFlow(() => {
+    throw new Error("Not found");
+  }, simpleResponse())(() => {
+    toMutate = "mutated";
+  });
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(500);
+  expect(body.status).toBe("error");
+  expect(toMutate).toBe("mutated");
+});
+
+it("If an error callback is supply it does not execute if no error occurres", async () => {
+  let toMutate = "Not mutated";
+
+  const flow = lambdaFlow((box) => {
+    box.statusCode = 899;
+    box.body = "Hello";
+
+    return box;
+  })(() => {
+    toMutate = "mutated";
+  });
+
+  const response = await lambdaExecutor(flow);
+
+  expect(response.statusCode).toBe(899);
+  expect(response.body).toBe("Hello");
+  expect(toMutate).toBe("Not mutated");
 });

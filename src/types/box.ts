@@ -17,9 +17,13 @@ export type FlowBox = {
   headers?: {
     [header: string]: boolean | number | string;
   };
-  body?: Record<string, any>;
+  body?: any;
   isBase64Encoded?: boolean;
   cookies?: string[];
+};
+
+export type FlowBoxWithError = FlowBox & {
+  error: FlowError;
 };
 
 export type FlowBoxWithResponse = FlowBox & {

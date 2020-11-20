@@ -69,6 +69,7 @@ module.exports = {
     "consistent-return": "off",
     "require-atomic-updates": "off",
     "lines-around-comment": "off",
+    "no-warning-comments": "off",
     // Typescript
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/naming-convention": "off",
@@ -77,7 +78,7 @@ module.exports = {
     "@typescript-eslint/no-duplicate-imports": "error",
     "@typescript-eslint/no-shadow": ["error", { "builtinGlobals": false, "hoist": "functions"}],
     // Function 
-    "func-style": "off",
+    "func-style": "off"
   },
   "env": {
     "node": true,

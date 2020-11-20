@@ -1,5 +1,5 @@
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import { FlowBox } from "./context";
+import { FlowBox } from "./box";
 
 // Middleware type
 export type ResponseMiddleware = (
