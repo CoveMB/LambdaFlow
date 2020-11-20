@@ -85,7 +85,6 @@ it("If I modify the status I get a modified status response", async () => {
 });
 
 it("If a body is a string it is return as it is", async () => {
-
   const flow = lambdaFlow((box) => {
     box.statusCode = 676;
     box.body = "Hello";
@@ -100,7 +99,6 @@ it("If a body is a string it is return as it is", async () => {
 });
 
 it("If a body is a number it is return as string", async () => {
-
   const flow = lambdaFlow((box) => {
     box.statusCode = 676;
     box.body = 678;

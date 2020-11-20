@@ -128,3 +128,21 @@ it("If an error callback is supply it does not execute if no error occurres", as
   expect(response.body).toBe("Hello");
   expect(toMutate).toBe("Not mutated");
 });
+
+it("If an error callback is supply it should not modify the returned box", async () => {
+  const flow = lambdaFlow(() => {
+    throw new Error("Not found");
+  }, simpleResponse())((box) => {
+    box.statusCode = 200;
+    box.body = "surprise";
+
+    return box;
+  });
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(500);
+  expect(body.status).toBe("error");
+});

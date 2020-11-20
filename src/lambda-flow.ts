@@ -4,6 +4,7 @@ import { flow } from "fp-ts/lib/function";
 import { simpleError } from "helpers";
 import * as R from "ramda";
 import { ErrorCallbackHandler } from "types/error";
+import { bodyNotReturned } from "utils/guards-messages";
 import {
   toStatusCodeErrorResponseLens,
   responseLens,
@@ -63,11 +64,30 @@ const returnResponse: ResponseMiddleware = async (box) =>
   )(await box) as Promise<APIGatewayProxyStructuredResultV2>;
 
 const errorOut: ErrorOut = (middleware) => async (box) =>
-  R.unless(
-    R.has("error"),
-    // @ts-ignore
-    R.tryCatch(middleware, (error: Error, errorBox) =>
-      R.assoc("error", simpleError(error))(errorBox)
+  // @ts-ignore
+  flow(
+    R.unless(
+      R.has("error"),
+      R.tryCatch(
+        flow(
+          // @ts-ignore
+          middleware,
+          R.unless(
+            R.is(Object),
+            flow(
+              R.tap(bodyNotReturned(middleware)),
+              R.always({
+                error: {
+                  code: 500,
+                },
+              })
+            )
+          )
+        ),
+        // @ts-ignore
+        (error: Error, errorBox) =>
+          R.assoc("error", simpleError(error))(errorBox)
+      )
     )
   )(await box);
 
