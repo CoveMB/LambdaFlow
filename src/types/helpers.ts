@@ -1,13 +1,17 @@
 import { FlowBox } from "./box";
-import { FlowSyncMiddleware, FlowAsyncMiddleware } from "./middleware";
+import {
+  FlowSyncMiddleware,
+  FlowAsyncMiddleware,
+  FlowMiddleware,
+} from "./middleware";
 
 // Middleware helpers
 export type HandleAsyncMiddleware = <
   M extends FlowSyncMiddleware | FlowAsyncMiddleware
 >(
   middleware: M
-) => (context: Promise<FlowBox>) => Promise<FlowBox>;
+) => (box: Promise<FlowBox>) => Promise<FlowBox>;
 
-export type ErrorOut = <M extends FlowSyncMiddleware | FlowAsyncMiddleware>(
+export type ErrorOut = <M extends FlowMiddleware>(
   middleware: M
-) => (context: Promise<FlowBox>) => Promise<FlowBox>;
+) => (box: Promise<FlowBox>) => Promise<FlowBox>;

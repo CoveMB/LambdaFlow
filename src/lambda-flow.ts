@@ -1,4 +1,3 @@
-import { debugLog } from "@bjmrq/utils";
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { flow } from "fp-ts/lib/function";
 import { simpleError } from "helpers";
@@ -91,7 +90,6 @@ const errorOut: ErrorOut = (middleware) => async (box) =>
     )
   )(await box);
 
-// @ts-ignore
 const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
   box
 ) =>

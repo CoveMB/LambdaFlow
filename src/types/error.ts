@@ -14,4 +14,4 @@ export type ErrorCallback = (box: FlowBoxWithError) => void;
 
 export type ErrorCallbackHandler = (
   errorCallback: ErrorCallback
-) => (box: Promise<FlowBox>) => FlowBox;
+) => (box: Promise<FlowBox>) => Promise<FlowBox>;
