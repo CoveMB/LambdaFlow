@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import { FlowBox } from "types";
-import { bodyNotReturned } from "utils/guards-messages";
+import { FlowBox } from "../src/types";
 import { lambdaFlow } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
 
