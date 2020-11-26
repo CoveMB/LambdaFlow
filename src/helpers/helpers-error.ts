@@ -1,4 +1,4 @@
-import { ErrorBuilder } from "types/error";
+import { ErrorBuilder } from "../types/error";
 
 const errorBuilder: ErrorBuilder = (expose = false) => (code = 500) => (
   error = new Error()

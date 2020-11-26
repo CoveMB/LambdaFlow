@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 import * as R from "ramda";
-import { FlowBox, FlowBoxForResponse, FlowBoxWithResponse } from "types";
+import { FlowBoxForResponse, FlowBoxWithResponse } from "../types";
 
 const bodyLens = R.lensProp("body");
 const statusLens = R.lensProp("statusCode");

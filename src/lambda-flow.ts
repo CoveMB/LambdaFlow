@@ -1,9 +1,9 @@
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { flow } from "fp-ts/lib/function";
-import { simpleError } from "helpers";
+import { simpleError } from "./helpers";
 import * as R from "ramda";
-import { ErrorCallbackHandler } from "types/error";
-import { bodyNotReturned } from "utils/guards-messages";
+import { ErrorCallbackHandler } from "./types/error";
+import { bodyNotReturned } from "./utils/guards-messages";
 import {
   toStatusCodeErrorResponseLens,
   responseLens,

@@ -1,4 +1,4 @@
-import { FlowMiddleware } from "types";
+import { FlowMiddleware } from "../types";
 
 const bodyNotReturned = (middleware: FlowMiddleware) => (failedReturn: any) =>
   console.log(
