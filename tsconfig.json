@@ -17,11 +17,11 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "baseUrl": ".",
-    "paths": {
-      "*": [
-        "./src/*"
-      ]
-    },
+    // "paths": {
+    //   "*": [
+    //     "./src/*"
+    //   ]
+    // },
     "typeRoots": [
       "src/types/*",
       "node_modules/@types"

@@ -13,8 +13,8 @@ import {
   toIsEncodedResponseLens,
   toStatusResponseLens,
   toBodySuccessResponseLens,
-} from "utils/lenses";
-import { isErrorExposed } from "utils/props";
+} from "./utils/lenses";
+import { isErrorExposed } from "./utils/props";
 import { CreateBox, LambdaFlow, ResponseMiddleware, ErrorOut } from "./types";
 
 const createBox: CreateBox = (event, context, callback) => ({
