@@ -11,11 +11,11 @@ You will also find some little helpers to help you with error handling and simpl
 ## Installation
 With npm:
 ```
-npm install bjmrq/lambda-flow
+npm install @bjmrq/lambda-flow
 ```
 With Yarn:
 ```
-yarn add bjmrq/lambda-flow
+yarn add @bjmrq/lambda-flow
 ```
 
 ## Hello Word Exemple
@@ -233,7 +233,7 @@ You can use little error helper to format the errors attached to the box.
   - error (default to empty Error): the error itself, it's message property will be used in the response
 
 exemple 1:
-```
+```js
 box.error = errorBuilder()()()
 ```
 Will return 
@@ -252,7 +252,7 @@ Will result in this response with a HTTP status of 500
 }
 ```
 exemple 2:
-```
+```js
 box.error = errorBuilder(true)(422)(new Error("Could not process data"))
 ```
 Will return 

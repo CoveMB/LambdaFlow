@@ -8,7 +8,7 @@ export type FlowError = {
 
 export type ErrorBuilder = (
   expose?: boolean
-) => (code?: number) => (error: Error) => FlowError;
+) => (code?: number) => (error?: Error) => FlowError;
 
 export type ErrorCallback = (box: FlowBoxWithError) => void;
 
