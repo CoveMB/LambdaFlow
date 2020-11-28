@@ -1,4 +1,4 @@
-import { FlowMiddleware } from "../types";
+import { FlowBoxWithError, FlowMiddleware } from "../types";
 
 const bodyNotReturned = (middleware: FlowMiddleware) => (failedReturn: any) =>
   console.log(
@@ -12,4 +12,7 @@ const bodyNotReturned = (middleware: FlowMiddleware) => (failedReturn: any) =>
     `
   );
 
-export { bodyNotReturned };
+const logError = (errorBox: FlowBoxWithError) =>
+  console.log(errorBox.error.error);
+
+export { bodyNotReturned, logError };

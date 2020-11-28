@@ -146,3 +146,51 @@ it("If an error callback is supply it should not modify the returned box", async
   expect(response.statusCode).toBe(500);
   expect(body.status).toBe("error");
 });
+
+it("If an error occurres the other functions of the flow are not run", async () => {
+  let toMutate = "Not mutated";
+
+  const flow = lambdaFlow(
+    () => {
+      throw new Error("Not found");
+    },
+    (box) => {
+      toMutate = "mutated";
+
+      return box;
+    }
+  )();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(500);
+  expect(body.status).toBe("error");
+  expect(toMutate).toBe("Not mutated");
+});
+
+it("If an error is attached to the box the other functions of the flow are not run", async () => {
+  let toMutate = "Not mutated";
+
+  const flow = lambdaFlow(
+    (box) => {
+      box.error = notFoundError(new Error("Could not find this ressource"));
+
+      return box;
+    },
+    (box) => {
+      toMutate = "mutated";
+
+      return box;
+    }
+  )();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(404);
+  expect(body.status).toBe("error");
+  expect(toMutate).toBe("Not mutated");
+});

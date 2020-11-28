@@ -2,9 +2,10 @@
 import { FlowBox } from "../src/types";
 import { lambdaFlow } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
+import { debugLog } from "@bjmrq/utils";
 
 it("A middleware has to return a box", async () => {
-  const consoleSpy = jest.spyOn(console, "log");
+  console.log = jest.fn();
 
   const wrongMiddleware = (box: FlowBox): void => {
     box.body = { code: 200 };
@@ -22,15 +23,12 @@ it("A middleware has to return a box", async () => {
 
   const response = await lambdaExecutor(flow);
 
-  console.log(response);
-
   const body = JSON.parse(response.body!);
 
   expect(body.status).toBe("error");
   expect(body.message).toBe("Internal Server Error");
   expect(response.statusCode).toBe(500);
-  expect(consoleSpy).toHaveBeenCalledWith(
-    // @ts-ignore
+  expect(console.log).toHaveBeenCalledWith(
     `
     Flow Error:
 
@@ -40,4 +38,25 @@ it("A middleware has to return a box", async () => {
     ${wrongMiddleware.toString()}
     `
   );
+});
+
+it("Only allowed key of box can be mutated", async () => {
+  console.log = jest.fn();
+
+  const flow = lambdaFlow((box) => {
+    box.statusCode = 200;
+    box.body = { name: true };
+    // @ts-ignore
+    box.mutation = 9;
+
+    return box;
+  })();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(body.message).toBe("Internal Server Error");
+  expect(response.statusCode).toBe(500);
+  expect(console.log).toHaveBeenCalled();
 });

@@ -7,10 +7,10 @@ import {
 
 // Middleware helpers
 export type HandleAsyncMiddleware = <
-  M extends FlowSyncMiddleware | FlowAsyncMiddleware
+  M extends FlowSyncMiddleware<M> | FlowAsyncMiddleware<M>
 >(
   middleware: M
-) => (box: Promise<FlowBox>) => Promise<FlowBox>;
+) => (box: Promise<FlowBox<M>>) => Promise<FlowBox<M>>;
 
 export type ErrorOut = <M extends FlowMiddleware>(
   middleware: M

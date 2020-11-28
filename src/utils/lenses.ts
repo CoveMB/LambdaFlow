@@ -1,50 +1,56 @@
 /* eslint-disable @typescript-eslint/indent */
 import * as R from "ramda";
-import { FlowBoxForResponse, FlowBoxWithResponse } from "../types";
+import { FlowBox, FlowBoxWithResponse } from "../types";
 
 const bodyLens = R.lensProp("body");
 const statusLens = R.lensProp("statusCode");
 const messageLens = R.lensProp("message");
 
 const toStatusResponseLens = R.lens<
-  FlowBoxForResponse,
-  FlowBoxForResponse["statusCode"],
+  FlowBox,
+  FlowBox["statusCode"],
   FlowBoxWithResponse
 >(R.prop("statusCode"), R.assocPath(["response", "statusCode"]));
 
 const toCookiesResponseLens = R.lens<
-  FlowBoxForResponse,
-  FlowBoxForResponse["cookies"],
+  FlowBox,
+  FlowBox["cookies"],
   FlowBoxWithResponse
 >(R.prop("cookies"), R.assocPath(["response", "cookies"]));
 
 const toIsEncodedResponseLens = R.lens<
-  FlowBoxForResponse,
-  FlowBoxForResponse["isBase64Encoded"],
+  FlowBox,
+  FlowBox["isBase64Encoded"],
   FlowBoxWithResponse
 >(R.prop("isBase64Encoded"), R.assocPath(["response", "isBase64Encoded"]));
 
 const toHeadersResponseLens = R.lens<
-  FlowBoxForResponse,
-  FlowBoxForResponse["headers"],
+  FlowBox,
+  FlowBox["headers"],
   FlowBoxWithResponse
 >(R.prop("headers"), R.assocPath(["response", "headers"]));
 
+const toMultiValueHeadersResponseLens = R.lens<
+  FlowBox,
+  FlowBox["multiValueHeaders"],
+  FlowBoxWithResponse
+>(R.prop("multiValueHeaders"), R.assocPath(["response", "multiValueHeaders"]));
+
 const toBodyErrorResponseLens = R.lens<
-  FlowBoxForResponse,
-  FlowBoxForResponse["error"],
+  FlowBox,
+  FlowBox["error"],
   FlowBoxWithResponse
 >(R.path(["error"]), R.assocPath(["response", "body"]));
 
 const toBodySuccessResponseLens = R.lens<
-  FlowBoxForResponse,
-  FlowBoxForResponse["body"],
+  FlowBox,
+  FlowBox["body"],
   FlowBoxWithResponse
 >(R.path(["body"]), R.assocPath(["response", "body"]));
 
 const toStatusCodeErrorResponseLens = R.lens<
-  FlowBoxForResponse,
-  FlowBoxForResponse["error"],
+  FlowBox,
+  FlowBox["error"],
   FlowBoxWithResponse
 >(R.path(["error"]), R.assocPath(["response", "statusCode"]));
 
@@ -62,4 +68,5 @@ export {
   toStatusCodeErrorResponseLens,
   toIsEncodedResponseLens,
   toBodySuccessResponseLens,
+  toMultiValueHeadersResponseLens,
 };

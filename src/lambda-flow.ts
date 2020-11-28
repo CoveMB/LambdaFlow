@@ -3,7 +3,7 @@ import { flow } from "fp-ts/lib/function";
 import { simpleError } from "./helpers";
 import * as R from "ramda";
 import { ErrorCallbackHandler } from "./types/error";
-import { bodyNotReturned } from "./utils/guards-messages";
+import { bodyNotReturned, logError } from "./utils/guards-messages";
 import {
   toStatusCodeErrorResponseLens,
   responseLens,
@@ -13,16 +13,32 @@ import {
   toIsEncodedResponseLens,
   toStatusResponseLens,
   toBodySuccessResponseLens,
+  toMultiValueHeadersResponseLens,
 } from "./utils/lenses";
 import { isErrorExposed } from "./utils/props";
-import { CreateBox, LambdaFlow, ResponseMiddleware, ErrorOut } from "./types";
+import {
+  CreateBox,
+  LambdaFlow,
+  ResponseMiddleware,
+  ErrorOut,
+  FlowMiddleware,
+  FlowBoxWithError,
+} from "./types";
 
-const createBox: CreateBox = (event, context, callback) => ({
-  state: {},
-  event,
-  callback,
-  context,
-});
+const createBox: CreateBox = (event, context, callback) =>
+  Object.seal({
+    state: {},
+    event,
+    callback,
+    context,
+    body: undefined,
+    isBase64Encoded: false,
+    cookies: undefined,
+    error: undefined,
+    statusCode: undefined,
+    headers: undefined,
+    multiValueHeaders: undefined,
+  });
 
 const errorResponse = flow(
   R.over(
@@ -58,34 +74,43 @@ const returnResponse: ResponseMiddleware = async (box) =>
     R.set(responseLens, {}),
     R.over(toCookiesResponseLens, R.identity),
     R.over(toHeadersResponseLens, R.identity),
-    R.ifElse(R.has("error"), errorResponse, successResponse),
+    R.over(toMultiValueHeadersResponseLens, R.identity),
+    R.ifElse(
+      flow(R.prop("error"), R.is(Object)),
+      errorResponse,
+      successResponse
+    ),
     R.prop("response")
   )(await box) as Promise<APIGatewayProxyStructuredResultV2>;
+
+const validateBoxState = (middleware: FlowMiddleware) =>
+  R.unless(
+    R.is(Object),
+    flow(
+      R.tap(bodyNotReturned(middleware)),
+      R.always({
+        error: {
+          code: 500,
+        },
+      })
+    )
+  );
+
+const notCatchedErrors = (error: Error, errorBox: FlowBoxWithError) =>
+  // @ts-ignore
+  flow(R.assoc("error", simpleError(error)), R.tap(logError))(errorBox);
 
 const errorOut: ErrorOut = (middleware) => async (box) =>
   // @ts-ignore
   flow(
+    // @ts-ignore
     R.unless(
-      R.has("error"),
+      flow(R.prop("error"), R.is(Object)),
+      // @ts-ignore
       R.tryCatch(
-        flow(
-          // @ts-ignore
-          middleware,
-          R.unless(
-            R.is(Object),
-            flow(
-              R.tap(bodyNotReturned(middleware)),
-              R.always({
-                error: {
-                  code: 500,
-                },
-              })
-            )
-          )
-        ),
         // @ts-ignore
-        (error: Error, errorBox) =>
-          R.assoc("error", simpleError(error))(errorBox)
+        flow(middleware, validateBoxState(middleware)),
+        notCatchedErrors
       )
     )
   )(await box);
@@ -95,9 +120,9 @@ const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
 ) =>
   // @ts-ignore
   R.when(
-    R.has("error"),
-    flow(R.clone, errorCallback, R.always(await box))
+    flow(R.prop("error"), R.is(Object)),
     // @ts-ignore
+    flow(R.clone, errorCallback, R.always(await box))
   )(await box);
 
 const lambdaFlow: LambdaFlow = (...middlewares) => (
@@ -106,6 +131,7 @@ const lambdaFlow: LambdaFlow = (...middlewares) => (
   // @ts-ignore
   flow(
     createBox,
+    // @ts-ignore
     ...R.map(errorOut)(middlewares),
     errorCallbackHandler(errorCallback),
     returnResponse

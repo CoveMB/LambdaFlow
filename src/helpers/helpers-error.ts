@@ -14,6 +14,7 @@ const exposedError = errorBuilder(true);
 const nonExposedError = errorBuilder(false);
 
 const notFoundError = errorBuilder(true)(404);
+const notAuthorizedError = errorBuilder(true)(403);
 
 export {
   errorBuilder,
@@ -21,4 +22,5 @@ export {
   nonExposedError,
   simpleError,
   notFoundError,
+  notAuthorizedError,
 };

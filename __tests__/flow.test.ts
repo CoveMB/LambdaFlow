@@ -111,3 +111,44 @@ it("If a body is a number it is return as string", async () => {
   expect(response.statusCode).toBe(676);
   expect(response.body).toBe("678");
 });
+
+it("It return set headers", async () => {
+  const header = { servername: "lambda" };
+  const flow = lambdaFlow((box) => {
+    box.headers = header;
+
+    return box;
+  })();
+
+  const response = await lambdaExecutor(flow);
+
+  expect(JSON.stringify(response.headers)).toBe(JSON.stringify(header));
+});
+
+it("It return set cookies", async () => {
+  const cookie = ["cookie=test"];
+  const flow = lambdaFlow((box) => {
+    box.cookies = cookie;
+
+    return box;
+  })();
+
+  const response = await lambdaExecutor(flow);
+
+  expect(JSON.stringify(response.cookies)).toBe(JSON.stringify(cookie));
+});
+
+it("It return multi value header", async () => {
+  const header = { servername: ["lambda"] };
+  const flow = lambdaFlow((box) => {
+    box.multiValueHeaders = header;
+
+    return box;
+  })();
+
+  const response = await lambdaExecutor(flow);
+
+  expect(JSON.stringify(response.multiValueHeaders)).toBe(
+    JSON.stringify(header)
+  );
+});
