@@ -1,6 +1,6 @@
 {
   "name": "@bjmrq/lambda-flow",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "description": "A little utility to flow data in lambda functions",
   "author": "Benjamin Marquis",
   "license": "ISC",
@@ -53,5 +53,11 @@
     "ts-node": "^9.0.0",
     "tsc-watch": "^4.2.9",
     "typescript": "^4.1.2"
-  }
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "http",
+    "serverless"
+  ]
 }
