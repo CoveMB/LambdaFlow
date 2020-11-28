@@ -1,5 +1,5 @@
 import { lambdaFlow, simpleResponse } from "../src";
-import { lambdaExecutor } from "./fixtures/helpers";
+import { lambdaExecutor, lambdaExecutorV1 } from "./fixtures/helpers";
 
 it("Return a stringify body", async () => {
   const flow = lambdaFlow(simpleResponse(201))();
@@ -146,7 +146,7 @@ it("It return multi value header", async () => {
     return box;
   })();
 
-  const response = await lambdaExecutor(flow);
+  const response = await lambdaExecutorV1(flow);
 
   expect(JSON.stringify(response.multiValueHeaders)).toBe(
     JSON.stringify(header)
