@@ -194,3 +194,19 @@ it("If an error is attached to the box the other functions of the flow are not r
   expect(body.status).toBe("error");
   expect(toMutate).toBe("Not mutated");
 });
+
+it("If an error occur in an async function and is not catch it is transform as a basic FlowError", async () => {
+  const flow = lambdaFlow(async (box) => {
+    await Promise.reject();
+
+    return box;
+  }, simpleResponse())();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(500);
+  expect(body.status).toBe("error");
+  expect(body.message).toBe("Internal Server Error");
+});

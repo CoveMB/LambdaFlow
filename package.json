@@ -22,7 +22,7 @@
     "test": "jest -i --config jestconfig.json"
   },
   "dependencies": {
-    "@bjmrq/utils": "^0.0.18",
+    "@bjmrq/utils": "^0.0.19",
     "aws-lambda": "^1.0.6",
     "fp-ts": "^2.8.4",
     "ramda": "^0.27.1"

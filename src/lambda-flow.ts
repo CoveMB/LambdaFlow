@@ -3,6 +3,7 @@ import { flow } from "fp-ts/lib/function";
 import { simpleError } from "./helpers";
 import * as R from "ramda";
 import { ErrorCallbackHandler } from "./types/error";
+import { tryCatchAsync } from "@bjmrq/utils";
 import { bodyNotReturned, logError } from "./utils/guards-messages";
 import {
   toStatusCodeErrorResponseLens,
@@ -107,12 +108,13 @@ const errorOut: ErrorOut = (middleware) => async (box) =>
     R.unless(
       flow(R.prop("error"), R.is(Object)),
       // @ts-ignore
-      R.tryCatch(
+      tryCatchAsync(
         // @ts-ignore
         flow(middleware, validateBoxState(middleware)),
         notCatchedErrors
       )
     )
+    // @ts-ignore
   )(await box);
 
 const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
