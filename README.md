@@ -285,11 +285,12 @@ Will result in this response with a HTTP status of 422
 ```
 
 Some predefined ones are derived from the builder but you can easaly create yours
-- **simpleError**: only ```expose=false``` and ```code=500``` provided
-- **exposedError**: only ```expose=true``` provided
-- **nonExposedError**: only ```expose=false``` provided
-- **notFoundError**: only ```expose=true``` and ```code=404``` provided
-- **notAuthorizedError**: only ```expose=true``` and ```code=403``` provided
+- **simpleError**: ```expose=false``` and ```code=500``` provided
+- **exposedError**: ```expose=true``` provided
+- **nonExposedError**: ```expose=false``` provided
+- **notFoundError**: ```expose=true``` and ```code=404``` provided
+- **notAuthorizedError**: ```expose=true``` and ```code=403``` provided
+- **unprocessableError**: ```expose=true``` and ```code=422``` provided
 
 Error builder in action
 ```js

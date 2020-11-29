@@ -16,6 +16,7 @@ const nonExposedError = errorBuilder(false);
 
 const notFoundError = errorBuilder(true)(404);
 const notAuthorizedError = errorBuilder(true)(403);
+const unprocessableError = errorBuilder(true)(422);
 
 export {
   errorBuilder,
@@ -24,4 +25,5 @@ export {
   simpleError,
   notFoundError,
   notAuthorizedError,
+  unprocessableError,
 };
