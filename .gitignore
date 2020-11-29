@@ -20,3 +20,5 @@ globalConfig.json
 
 # Dist typescript compilation folder
 dist
+
+yarn.lock
