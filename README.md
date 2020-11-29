@@ -243,7 +243,7 @@ You can use little error helper to format the errors attached to the box.
 - **errorBuilder**: the error build will help you build the error, it is a curried function so you can pass it's parameter one at the time. 
   - expose (default to false): a boolean property that indicate if you want to expose this error or not
   - code (default to 500): the error code, will be return as HTTP status code response
-  - error (default to empty Error): the error itself, it's message property will be used in the response
+  - message or error (default to "Internal Server Error" message): the message you will send in the response or the error itself, it's message property will be used in the response
 
 exemple 1:
 ```js
@@ -267,6 +267,8 @@ Will result in this response with a HTTP status of 500
 exemple 2:
 ```js
 box.error = errorBuilder(true)(422)(new Error("Could not process data"))
+// Same as
+box.error = errorBuilder(true)(422)("Could not process data")
 ```
 Will return 
 ```
@@ -302,7 +304,7 @@ exports.handler = lambdaFlow(
     const authorizationToken = box.event.headers.authorization;
 
     if (!authorizationToken) {
-      box.error = notAuthorizedError(new Error("Not Authorized"));
+      box.error = notAuthorizedError("You can't do that");
 
       return box;
     }

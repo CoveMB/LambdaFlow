@@ -1,4 +1,5 @@
 import {
+  exposedError,
   lambdaFlow,
   nonExposedError,
   notFoundError,
@@ -39,7 +40,7 @@ it("If an exposed FlowError occur during the flow it is return it's message", as
       // eslint-disable-next-line no-unreachable
       return box;
     } catch (error) {
-      box.error = notFoundError(error);
+      box.error = notFoundError(error.message);
     }
 
     return box;
@@ -54,7 +55,7 @@ it("If an exposed FlowError occur during the flow it is return it's message", as
   expect(body.message).toBe("Not found");
 });
 
-it("If an non exposed FlowError occur during the flow it is return it's message", async () => {
+it("If an non exposed FlowError occur during the flow it does not return it's message with error", async () => {
   const flow = lambdaFlow((box) => {
     try {
       throw new Error("Oups!");
@@ -75,6 +76,75 @@ it("If an non exposed FlowError occur during the flow it is return it's message"
   expect(response.statusCode).toBe(500);
   expect(body.status).toBe("error");
   expect(body.message).toBe("Internal Server Error");
+});
+
+it("If an non exposed FlowError occur during the flow it does not return it's message with message", async () => {
+  const flow = lambdaFlow((box) => {
+    try {
+      throw new Error("Oups!");
+
+      // eslint-disable-next-line no-unreachable
+      return box;
+    } catch (error) {
+      box.error = nonExposedError(403)(error.message);
+    }
+
+    return box;
+  }, simpleResponse())();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(500);
+  expect(body.status).toBe("error");
+  expect(body.message).toBe("Internal Server Error");
+});
+
+it("If an exposed FlowError occur during the flow it return it's message with error", async () => {
+  const flow = lambdaFlow((box) => {
+    try {
+      throw new Error("Oups!");
+
+      // eslint-disable-next-line no-unreachable
+      return box;
+    } catch (error) {
+      box.error = exposedError(403)(error);
+    }
+
+    return box;
+  }, simpleResponse())();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(403);
+  expect(body.status).toBe("error");
+  expect(body.message).toBe("Oups!");
+});
+
+it("If an exposed FlowError occur during the flow it return it's message with message", async () => {
+  const flow = lambdaFlow((box) => {
+    try {
+      throw new Error("Oups!");
+
+      // eslint-disable-next-line no-unreachable
+      return box;
+    } catch (error) {
+      box.error = exposedError(403)(error.message);
+    }
+
+    return box;
+  }, simpleResponse())();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(403);
+  expect(body.status).toBe("error");
+  expect(body.message).toBe("Oups!");
 });
 
 it("If an error occur and is not catch it is transform as a basic FlowError", async () => {
@@ -176,7 +246,7 @@ it("If an error is attached to the box the other functions of the flow are not r
 
   const flow = lambdaFlow(
     (box) => {
-      box.error = notFoundError(new Error("Could not find this ressource"));
+      box.error = notFoundError("Could not find this ressource");
 
       return box;
     },
@@ -244,8 +314,6 @@ it("If is compatible with http-error", async () => {
   const flow = lambdaFlow(
     (box) => {
       throw new createHttpError.NotFound();
-
-      return box;
     },
     (box) => {
       toMutate = "mutated";

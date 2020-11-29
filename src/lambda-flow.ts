@@ -48,7 +48,7 @@ const errorResponse = flow(
     flow(
       R.ifElse(
         isErrorExposed,
-        R.path(["message"]),
+        R.prop("message"),
         R.always("Internal Server Error")
       ),
       R.assoc("message", R.__, {}),

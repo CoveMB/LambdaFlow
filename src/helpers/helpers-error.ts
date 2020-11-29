@@ -1,12 +1,13 @@
 import { ErrorBuilder } from "../types/error";
+import * as R from "ramda";
 
 const errorBuilder: ErrorBuilder = (expose = false) => (statusCode = 500) => (
-  error = new Error()
+  message = "Internal Server Error"
 ) => ({
   expose,
   statusCode,
-  error,
-  message: error.message,
+  message: R.when(R.is(Object), R.prop("message"))(message),
+  error: R.unless(R.is(Object), () => new Error(message as string))(message),
 });
 
 const simpleError = errorBuilder()();
