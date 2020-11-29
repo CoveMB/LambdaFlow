@@ -6,6 +6,7 @@ import {
   simpleResponse,
 } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
+import createHttpError from "http-errors";
 
 it("If an error occur during the flow it is returned in the body", async () => {
   const flow = lambdaFlow((box) => {
@@ -209,4 +210,56 @@ it("If an error occur in an async function and is not catch it is transform as a
   expect(response.statusCode).toBe(500);
   expect(body.status).toBe("error");
   expect(body.message).toBe("Internal Server Error");
+});
+
+it("If is compatible with http-error", async () => {
+  let toMutate = "Not mutated";
+
+  const flow = lambdaFlow(
+    (box) => {
+      box.error = new createHttpError.NotFound();
+
+      return box;
+    },
+    (box) => {
+      toMutate = "mutated";
+
+      return box;
+    }
+  )();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(404);
+  expect(body.status).toBe("error");
+  expect(body.message).toBe("Not Found");
+  expect(toMutate).toBe("Not mutated");
+});
+
+it("If is compatible with http-error", async () => {
+  let toMutate = "Not mutated";
+
+  const flow = lambdaFlow(
+    (box) => {
+      throw new createHttpError.NotFound();
+
+      return box;
+    },
+    (box) => {
+      toMutate = "mutated";
+
+      return box;
+    }
+  )();
+
+  const response = await lambdaExecutor(flow);
+
+  const body = JSON.parse(response.body!);
+
+  expect(response.statusCode).toBe(500);
+  expect(body.status).toBe("error");
+  expect(body.message).toBe("Internal Server Error");
+  expect(toMutate).toBe("Not mutated");
 });

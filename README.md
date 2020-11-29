@@ -150,6 +150,7 @@ Will result in a 200 response like
 
 ### How it Works
 If you want to return an error to your user you need to attach it to the error key of the box. This will skip the execution of all other functions in your flow.
+The error should be attach to the box and not **throw**, to control the flow in your application.
 
 ```js
 exports.handler = lambdaFlow(
@@ -159,8 +160,8 @@ exports.handler = lambdaFlow(
     if (!authorizationToken) {
       box.error = {
         exposed: true,
-        code: 403,
-        error: new Error("Not Authorized")
+        statusCode: 403,
+        message: "Not Authorized"
       };
 
       return box;
@@ -195,13 +196,14 @@ This will result in the following response with a HTTP status code of 403
 
 - The types of an error to attach to the error key of the box should looks like this:
   - **expose**: a boolean property that indicate if you want to expose this error or not
-  - **code**: the error code, will be return as HTTP status code response
+  - **statusCode**: the error code, will be return as HTTP status code response
   - **error**: the error itself, it's message property will be used in the response
 ```ts
 type FlowError = {
   expose: boolean;
-  code: number;
-  error: Error;
+  statusCode: number;
+  message: string;
+  error?: Error;
 };
 ```
 *(to help you with formatting errors see the error helpers section)*
@@ -222,6 +224,17 @@ type FlowError = {
 }
 ```
 
+- It is recommended to **use the error helper builder** (next chapter) but there is basic compatibility with ```http-errors``` package (it will forward expose, statusCode and message), so you can do
+```js
+box.error = new createHttpError.NotFound();
+```
+And it w ill return with an HTTP status code of 404
+```
+{
+  "status": "error",
+  "message": "Not Found"
+}
+```
 
 
 ### Error Helpers

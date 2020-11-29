@@ -2,13 +2,14 @@ import { FlowBox, FlowBoxWithError } from "./box";
 
 export type FlowError = {
   expose: boolean;
-  code: number;
-  error: Error;
+  statusCode: number;
+  message: string;
+  error?: Error;
 };
 
 export type ErrorBuilder = (
   expose?: boolean
-) => (code?: number) => (error?: Error) => FlowError;
+) => (statusCode?: number) => (error?: Error) => FlowError;
 
 export type ErrorCallback = (box: FlowBoxWithError) => void;
 

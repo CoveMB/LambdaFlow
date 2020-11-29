@@ -41,13 +41,14 @@ const createBox: CreateBox = (event, context, callback) =>
     multiValueHeaders: undefined,
   });
 
+// TODO make integration with http-error possible
 const errorResponse = flow(
   R.over(
     toBodyErrorResponseLens,
     flow(
       R.ifElse(
         isErrorExposed,
-        R.path(["error", "message"]),
+        R.path(["message"]),
         R.always("Internal Server Error")
       ),
       R.assoc("message", R.__, {}),
@@ -57,7 +58,7 @@ const errorResponse = flow(
   ),
   R.over(
     toStatusCodeErrorResponseLens,
-    R.ifElse(isErrorExposed, R.prop("code"), R.always(500))
+    R.ifElse(isErrorExposed, R.prop("statusCode"), R.always(500))
   )
 );
 
@@ -108,6 +109,7 @@ const errorOut: ErrorOut = (middleware) => async (box) =>
     R.unless(
       flow(R.prop("error"), R.is(Object)),
       // @ts-ignore
+      // TODO have a look at ramda otherwise
       tryCatchAsync(
         // @ts-ignore
         flow(middleware, validateBoxState(middleware)),

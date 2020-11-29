@@ -1,11 +1,12 @@
 import { ErrorBuilder } from "../types/error";
 
-const errorBuilder: ErrorBuilder = (expose = false) => (code = 500) => (
+const errorBuilder: ErrorBuilder = (expose = false) => (statusCode = 500) => (
   error = new Error()
 ) => ({
   expose,
-  code,
+  statusCode,
   error,
+  message: error.message,
 });
 
 const simpleError = errorBuilder()();
