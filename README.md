@@ -344,7 +344,7 @@ exports.handler = lambdaFlow(
 - In the error handler you will have access to the whole box that caused the error and the error itself
 - The box in the error handler is a copy of the box that will be return, mutating it will not change the response
 
-### The Flow and it's Box Recap
+## The Flow and it's Box Recap
 
 A *flow* is similar to a pipe fonction in functional programming, you can combine your functions from left to right, and the *box* will flow thought them, you **need to return the box** at the end of your function so it can be passed on to the next function of the flow.
 

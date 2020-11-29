@@ -1,6 +1,6 @@
 {
   "name": "@bjmrq/lambda-flow",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "A little utility to flow data in lambda functions",
   "author": "Benjamin Marquis",
   "license": "ISC",
@@ -60,6 +60,7 @@
     "aws",
     "lambda",
     "http",
-    "serverless"
+    "serverless",
+    "apigateway"
   ]
 }
