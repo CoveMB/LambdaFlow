@@ -1,6 +1,5 @@
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import { flow } from "fp-ts/lib/function";
-import { simpleError } from "./helpers";
+import { flow, pipe } from "fp-ts/lib/function";
 import * as R from "ramda";
 import { ErrorCallbackHandler } from "./types/error";
 import { tryCatchAsync } from "@bjmrq/utils";
@@ -25,6 +24,7 @@ import {
   FlowMiddleware,
   FlowBoxWithError,
 } from "./types";
+import enhancedErrors from "./utils/guards-reasons";
 
 const createBox: CreateBox = (event, context, callback) =>
   Object.seal({
@@ -98,9 +98,15 @@ const validateBoxState = (middleware: FlowMiddleware) =>
     )
   );
 
-const notCatchedErrors = (error: Error, errorBox: FlowBoxWithError) =>
-  // @ts-ignore
-  flow(R.assoc("error", simpleError(error)), R.tap(logError))(errorBox);
+const notCatchedErrors = (middleware: FlowMiddleware) => (
+  error: Error,
+  errorBox: FlowBoxWithError
+) =>
+  pipe(
+    errorBox,
+    R.assoc("error", enhancedErrors(middleware)(error)),
+    R.tap(logError)
+  );
 
 const errorOut: ErrorOut = (middleware) => async (box) =>
   // @ts-ignore
@@ -113,7 +119,7 @@ const errorOut: ErrorOut = (middleware) => async (box) =>
       tryCatchAsync(
         // @ts-ignore
         flow(middleware, validateBoxState(middleware)),
-        notCatchedErrors
+        notCatchedErrors(middleware)
       )
     )
     // @ts-ignore

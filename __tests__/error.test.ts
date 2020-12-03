@@ -268,7 +268,7 @@ it("If an error is attached to the box the other functions of the flow are not r
 
 it("If an error occur in an async function and is not catch it is transform as a basic FlowError", async () => {
   const flow = lambdaFlow(async (box) => {
-    await Promise.reject();
+    await Promise.reject(new Error("Promise error"));
 
     return box;
   }, simpleResponse())();

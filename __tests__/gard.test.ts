@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { FlowBox } from "../src/types";
 import { lambdaFlow } from "../src";
@@ -5,6 +6,8 @@ import { lambdaExecutor } from "./fixtures/helpers";
 import { debugLog } from "@bjmrq/utils";
 
 it("A middleware has to return a box", async () => {
+  const originalLog = console.log;
+
   console.log = jest.fn();
 
   const wrongMiddleware = (box: FlowBox): void => {
@@ -30,27 +33,32 @@ it("A middleware has to return a box", async () => {
   expect(response.statusCode).toBe(500);
   expect(console.log).toHaveBeenCalledWith(
     `
-    Flow Error:
+    Flow Error: Your middleware did not returned a box to be passed on to the next one, instead it returned: ${undefined}
 
-    Your middleware did not returned a box to be passed on to the next one, instead it returned: ${undefined}
-    This has occurred in the following middleware:
+    This error has occurred in the following middleware:
 
     ${wrongMiddleware.toString()}
     `
   );
+
+  console.log = originalLog;
 });
 
 it("Only allowed key of box can be mutated", async () => {
+  const originalLog = console.log;
+
   console.log = jest.fn();
 
-  const flow = lambdaFlow((box) => {
+  const wrongMiddleware = (box: FlowBox) => {
     box.statusCode = 200;
     box.body = { name: true };
     // @ts-ignore
     box.mutation = 9;
 
     return box;
-  })();
+  };
+
+  const flow = lambdaFlow(wrongMiddleware)();
 
   const response = await lambdaExecutor(flow);
 
@@ -58,5 +66,14 @@ it("Only allowed key of box can be mutated", async () => {
 
   expect(body.message).toBe("Internal Server Error");
   expect(response.statusCode).toBe(500);
-  expect(console.log).toHaveBeenCalled();
+  expect(console.log).toHaveBeenCalledWith(
+    `
+    Flow Error: Is seems you might be mutating the box, only the state property of the box is allowed to be extended, use it to pass data from one function to an other.
+
+    This error has occurred in the following middleware:
+
+    ${wrongMiddleware.toString()}
+    `
+  );
+  console.log = originalLog;
 });
