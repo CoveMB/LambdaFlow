@@ -18,7 +18,6 @@
     "prepublishOnly": "npm test",
     "clean": "rimraf ./dist",
     "build": "npm run clean && tsc",
-    "dev": "tsc-watch --project ./tsconfig.json --noClear --onSuccess \"node --use-strict --inspect=127.0.0.1:3029 ./dist/src/app.js\"",
     "test": "jest -i --config jestconfig.json"
   },
   "dependencies": {

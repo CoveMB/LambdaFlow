@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "es6",
     "module": "commonjs",
     "declaration": true,
     "alwaysStrict": true,
@@ -28,9 +28,7 @@
     ]
   },
   "compileOnSave": true,
-  "exclude": [
-    "node_modules",
-    "./dist",
-    "./.vscode",
+  "include": [
+    "./src"
   ]
 }
