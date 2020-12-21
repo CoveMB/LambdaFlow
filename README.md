@@ -38,7 +38,7 @@ export const handler =  lambdaFlow(
   }
 )();
 ```
-
+## How It Works
 ### Combine Functions
 
 You can create a flow made of multiple functions that will execute one after an other from left to right, similar to a *pipe* function.
@@ -195,7 +195,7 @@ This will result in the following response with a HTTP status code of 403
 ```
 
 - The types of an error to attach to the error key of the box should looks like this:
-  - **expose**: a boolean property that indicate if you want to expose this error or not
+  - **expose**: a boolean property that indicate if you want to expose this error or not in the response
   - **statusCode**: the error code, will be return as HTTP status code response
   - **error**: the error itself, it's message property will be used in the response
 ```ts
@@ -240,10 +240,10 @@ And it w ill return with an HTTP status code of 404
 ### Error Helpers
 You can use little error helper to format the errors attached to the box.
 
-- **errorBuilder**: the error build will help you build the error, it is a curried function so you can pass it's parameter one at the time. 
+- **errorBuilder**: the error builder will help you build the error to be returned to the user, it is a curried function so you can pass it's parameter one at the time. 
   - expose (default to false): a boolean property that indicate if you want to expose this error or not
   - code (default to 500): the error code, will be return as HTTP status code response
-  - message or error (default to "Internal Server Error" message): the message you will send in the response or the error itself, it's message property will be used in the response
+  - message or error (default to "Internal Server Error" message): the message you will send in the response or the error itself if it is an error it's message property will be used in the response
 
 exemple 1:
 ```js

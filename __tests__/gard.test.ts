@@ -1,9 +1,6 @@
-/* eslint-disable max-statements */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { FlowBox } from "../src/types";
 import { lambdaFlow } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
-import { debugLog } from "@bjmrq/utils";
 
 it("A middleware has to return a box", async () => {
   const originalLog = console.log;

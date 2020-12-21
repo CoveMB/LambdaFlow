@@ -41,7 +41,6 @@ const createBox: CreateBox = (event, context, callback) =>
     multiValueHeaders: undefined,
   });
 
-// TODO make integration with http-error possible
 const errorResponse = flow(
   R.over(
     toBodyErrorResponseLens,
@@ -135,6 +134,11 @@ const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
     flow(R.clone, errorCallback, R.always(await box))
   )(await box);
 
+/**
+ * Will process the APIGateway event through your middlewares and then return it's response
+ * @param {Array<FlowMiddleware<M>>} ...middlewares - All the middleware that will process your APIGateway event
+ * @returns {APIGatewayProxyResultV2 | APIGatewayProxyResult} - The response to be return the APIGateway
+ */
 const lambdaFlow: LambdaFlow = (...middlewares) => (
   errorCallback = R.identity
 ) =>
