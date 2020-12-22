@@ -4,6 +4,7 @@
   "description": "A little utility to flow data in lambda functions",
   "author": "Benjamin Marquis",
   "license": "ISC",
+  "homepage": "https://www.lambdaflow.xyz/",
   "repository": {
     "type": "git",
     "url": "https://github.com/BjMrq/LambdaFlow"
