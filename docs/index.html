@@ -1,0 +1,468 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>@bjmrq/lambda-flow</title>
+	<meta name="description" content="Documentation for @bjmrq/lambda-flow">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">@bjmrq/lambda-flow</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>@bjmrq/lambda-flow</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#lambdaflow" id="lambdaflow" style="color: inherit; text-decoration: none;">
+					<h1>LambdaFlow</h1>
+				</a>
+				<a href="#a-little-framework-to-process-data-in-lambda-functions-connected-to-api-gateway-proxy" id="a-little-framework-to-process-data-in-lambda-functions-connected-to-api-gateway-proxy" style="color: inherit; text-decoration: none;">
+					<h3>A little framework to process data in Lambda Functions connected to API Gateway proxy</h3>
+				</a>
+				<p><em>(Support APiGateway proxy v1 and v2)</em></p>
+				<p>This is a little utility to process data in a Lambda function in a node.js runtime.</p>
+				<p>A context or &quot;box&quot; will contain the API Proxy event and Lambda function context and will flow through your functions, to be returned as a response at the end.</p>
+				<p>You will also find some little helpers to help you with error handling and simple HTTP response.</p>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<p>With npm:</p>
+				<pre><code><span class="hljs-built_in">npm</span> install @bjmrq/lambda-flow</code></pre>
+				<p>With Yarn:</p>
+				<pre><code>yarn <span class="hljs-keyword">add</span><span class="bash"> @bjmrq/lambda-flow</span></code></pre>
+				<a href="#hello-word-exemple" id="hello-word-exemple" style="color: inherit; text-decoration: none;">
+					<h2>Hello Word Exemple</h2>
+				</a>
+				<p>Javascript:</p>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(
+  <span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+    box.body = <span class="hljs-string">&quot;Hello Word&quot;</span>;
+    <span class="hljs-keyword">return</span> box; <span class="hljs-comment">// returning the box is mandatory</span>
+  }
+)();</code></pre>
+				<p>Typescript:</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> handler =  lambdaFlow(
+  <span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+    box.body = <span class="hljs-string">&quot;Hello Word&quot;</span>;
+    <span class="hljs-keyword">return</span> box; <span class="hljs-comment">// returning the box is mandatory</span>
+  }
+)();</code></pre>
+				<a href="#how-it-works" id="how-it-works" style="color: inherit; text-decoration: none;">
+					<h2>How It Works</h2>
+				</a>
+				<a href="#combine-functions" id="combine-functions" style="color: inherit; text-decoration: none;">
+					<h3>Combine Functions</h3>
+				</a>
+				<p>You can create a flow made of multiple functions that will execute one after an other from left to right, similar to a <em>pipe</em> function.
+				Those function can either be sync or async functions.</p>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(
+  <span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+    <span class="hljs-built_in">console</span>.log(box.event);
+
+    <span class="hljs-keyword">return</span> box;
+  },
+  <span class="hljs-keyword">async</span> (box) =&gt; {
+    box.body = {
+      <span class="hljs-attr">status</span>: <span class="hljs-string">&quot;ok&quot;</span>
+    };
+
+    <span class="hljs-keyword">return</span> box;
+  }
+)();</code></pre>
+				<a href="#move-data-around" id="move-data-around" style="color: inherit; text-decoration: none;">
+					<h3>Move Data Around</h3>
+				</a>
+				<p>If you want to move some data from one function to an other you have access to the state key of the box. You can attach any data you like to this state.</p>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(
+  <span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> body = <span class="hljs-built_in">JSON</span>.parse(box.event.body);
+
+    box.state.parsedBody = body; <span class="hljs-comment">// Attach data to state</span>
+
+    <span class="hljs-keyword">return</span> box;
+  },
+  <span class="hljs-keyword">async</span> (box) =&gt; {
+    <span class="hljs-keyword">const</span> product = <span class="hljs-keyword">await</span> database(<span class="hljs-string">&quot;products&quot;</span>).where(
+      <span class="hljs-string">&quot;id&quot;</span>,
+      box.state.parsedBody.requestId <span class="hljs-comment">// Access data from state</span>
+    );
+
+    box.body = product;
+
+    <span class="hljs-keyword">return</span> box;
+  }
+)();</code></pre>
+				<a href="#those-are-the-keys-accessible-inside-the-box" id="those-are-the-keys-accessible-inside-the-box" style="color: inherit; text-decoration: none;">
+					<h4>Those are the keys accessible inside the box:</h4>
+				</a>
+				<ul>
+					<li><strong>event</strong>: is the event object generated by APIGateway</li>
+					<li><strong>context</strong>: is the context of the Lambda function executing</li>
+					<li><strong>callback</strong>: is a function that you can call in non-async lambda function handlers to send a response</li>
+					<li><strong>state</strong>: is a mutable key that you can use to pass data from one function to another</li>
+					<li><strong>error</strong>: you can attach an error to the error key, doing so will bypass other functions of the flow, only the error handler will be trigger, you can control wether you want to expose this error or not</li>
+				</ul>
+				<a href="#control-what-is-returned" id="control-what-is-returned" style="color: inherit; text-decoration: none;">
+					<h3>Control What is Returned</h3>
+				</a>
+				<p>Data on the <strong>state will never be return</strong>, for this you need to attached data to the <strong>body</strong> key of the box.</p>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(
+  <span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> body = <span class="hljs-built_in">JSON</span>.parse(box.event.body);
+
+    box.state.parsedBody = body;
+
+    <span class="hljs-keyword">return</span> box;
+  },
+  <span class="hljs-keyword">async</span> (box) =&gt; {
+    <span class="hljs-keyword">const</span> product = <span class="hljs-keyword">await</span> database(<span class="hljs-string">&quot;product&quot;</span>).where(
+      <span class="hljs-string">&quot;id&quot;</span>,
+      box.state.parsedBody.requestId
+    );
+
+    box.body = product; <span class="hljs-comment">// Request body that will be returned</span>
+    body.statusCode = <span class="hljs-number">200</span>; <span class="hljs-comment">// HTTP status that will be returned</span>
+
+    <span class="hljs-keyword">return</span> box;
+  }
+)();</code></pre>
+				<a href="#the-keys-that-will-modify-your-response-are-the-following" id="the-keys-that-will-modify-your-response-are-the-following" style="color: inherit; text-decoration: none;">
+					<h4>The keys that will modify your response are the following</h4>
+				</a>
+				<ul>
+					<li><strong>body</strong>: will be the body that will be send by your HTTP response</li>
+					<li><strong>statusCode</strong>: will be the HTTP status code of your response</li>
+					<li><strong>cookies</strong>: will the the cookies attached to your response</li>
+					<li><strong>headers</strong>: will the the headers attached to your response</li>
+					<li><strong>multiValueHeaders</strong>: v1 support for multiValueHeaders</li>
+					<li><strong>isBase64Encoded</strong>: will indicate if your payload is Base64 encoded</li>
+				</ul>
+				<a href="#simple-response-helper" id="simple-response-helper" style="color: inherit; text-decoration: none;">
+					<h3>Simple Response Helper</h3>
+				</a>
+				<p>You can use a <code>simpleResponse</code> function, only supply the HTTP response <strong>status code</strong> you like, the default is 200. The response body will stay <code>status: &quot;success&quot;</code></p>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(simpleResponse())();</code></pre>
+				<p>Will result in a 200 response like</p>
+				<pre><code>{
+  <span class="hljs-attribute">status</span>: <span class="hljs-string">&quot;success&quot;</span>
+}</code></pre>
+				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+					<h2>Error Handling</h2>
+				</a>
+				<a href="#how-it-works-1" id="how-it-works-1" style="color: inherit; text-decoration: none;">
+					<h3>How it Works</h3>
+				</a>
+				<p>If you want to return an error to your user you need to attach it to the error key of the box. This will skip the execution of all other functions in your flow.
+				The error should be attach to the box and not <strong>throw</strong>, to control the flow in your application.</p>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(
+  <span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> authorizationToken = box.event.headers.authorization;
+
+    <span class="hljs-keyword">if</span> (!authorizationToken) {
+      box.error = {
+        <span class="hljs-attr">exposed</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">statusCode</span>: <span class="hljs-number">403</span>,
+        <span class="hljs-attr">message</span>: <span class="hljs-string">&quot;Not Authorized&quot;</span>
+      };
+
+      <span class="hljs-keyword">return</span> box;
+    }
+
+    <span class="hljs-keyword">const</span> body = <span class="hljs-built_in">JSON</span>.parse(box.event.body);
+
+    box.state.parsedBody = body;
+
+    <span class="hljs-keyword">return</span> box;
+  },
+  <span class="hljs-comment">// If an error has been attach in the previous function this one will not run</span>
+  <span class="hljs-keyword">async</span> (box) =&gt; {
+    <span class="hljs-keyword">const</span> product = <span class="hljs-keyword">await</span> database(<span class="hljs-string">&quot;product&quot;</span>).where(
+      <span class="hljs-string">&quot;id&quot;</span>,
+      box.state.parsedBody.requestId
+    );
+
+    box.body = product;
+
+    <span class="hljs-keyword">return</span> box;
+  }
+)();</code></pre>
+				<p>This will result in the following response with a HTTP status code of 403</p>
+				<pre><code>{
+  <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;error&quot;</span>,
+  <span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;Not Authorized&quot;</span>
+}</code></pre>
+				<ul>
+					<li>The types of an error to attach to the error key of the box should looks like this:<ul>
+							<li><strong>expose</strong>: a boolean property that indicate if you want to expose this error or not in the response</li>
+							<li><strong>statusCode</strong>: the error code, will be return as HTTP status code response</li>
+							<li><strong>error</strong>: the error itself, it&#39;s message property will be used in the response<pre><code class="language-ts"><span class="hljs-keyword">type</span> FlowError = {
+<span class="hljs-attr">expose</span>: <span class="hljs-built_in">boolean</span>;
+statusCode: <span class="hljs-built_in">number</span>;
+message: <span class="hljs-built_in">string</span>;
+error?: <span class="hljs-built_in">Error</span>;
+};</code></pre>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<p><em>(to help you with formatting errors see the error helpers section)</em></p>
+				<ul>
+					<li><p>If an error is <strong>not exposed</strong> it will return an HTTP status code of 500 with a &quot;Internal Server Error&quot; message like this</p>
+						<pre><code>{
+<span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;error&quot;</span>,
+<span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;Internal Server Error&quot;</span>
+}</code></pre>
+					</li>
+					<li><p>If an <strong>unexpected error</strong> happens during your flow and you did not catch it will return the following response with a HTTP status code of 500</p>
+						<pre><code>{
+<span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;error&quot;</span>,
+<span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;Internal Server Error&quot;</span>
+}</code></pre>
+					</li>
+					<li><p>It is recommended to <strong>use the error helper builder</strong> (next chapter) but there is basic compatibility with <code>http-errors</code> package (it will forward expose, statusCode and message), so you can do</p>
+						<pre><code class="language-js">box.error = <span class="hljs-keyword">new</span> createHttpError.NotFound();</code></pre>
+						<p>And it w ill return with an HTTP status code of 404</p>
+						<pre><code>{
+<span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;error&quot;</span>,
+<span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;Not Found&quot;</span>
+}</code></pre>
+					</li>
+				</ul>
+				<a href="#error-helpers" id="error-helpers" style="color: inherit; text-decoration: none;">
+					<h3>Error Helpers</h3>
+				</a>
+				<p>You can use little error helper to format the errors attached to the box.</p>
+				<ul>
+					<li><strong>errorBuilder</strong>: the error builder will help you build the error to be returned to the user, it is a curried function so you can pass it&#39;s parameter one at the time. <ul>
+							<li>expose (default to false): a boolean property that indicate if you want to expose this error or not</li>
+							<li>code (default to 500): the error code, will be return as HTTP status code response</li>
+							<li>message or error (default to &quot;Internal Server Error&quot; message): the message you will send in the response or the error itself if it is an error it&#39;s message property will be used in the response</li>
+						</ul>
+					</li>
+				</ul>
+				<p>exemple 1:</p>
+				<pre><code class="language-js">box.error = errorBuilder()()()</code></pre>
+				<p>Will return </p>
+				<pre><code>{
+  <span class="hljs-attribute">exposed</span>: false,
+  code: <span class="hljs-number">500</span>,
+  error: new <span class="hljs-built_in">Error</span>()
+}</code></pre>
+				<p>Will result in this response with a HTTP status of 500</p>
+				<pre><code>{
+  <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;error&quot;</span>,
+  <span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;Internal Server Error&quot;</span>
+}</code></pre>
+				<p>exemple 2:</p>
+				<pre><code class="language-js">box.error = errorBuilder(<span class="hljs-literal">true</span>)(<span class="hljs-number">422</span>)(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">&quot;Could not process data&quot;</span>))
+<span class="hljs-comment">// Same as</span>
+box.error = errorBuilder(<span class="hljs-literal">true</span>)(<span class="hljs-number">422</span>)(<span class="hljs-string">&quot;Could not process data&quot;</span>)</code></pre>
+				<p>Will return </p>
+				<pre><code>{
+  <span class="hljs-attribute">exposed</span>: true,
+  code: <span class="hljs-number">422</span>,
+  error: new <span class="hljs-built_in">Error</span>(<span class="hljs-string">&quot;Could not process data&quot;</span>)
+}</code></pre>
+				<p>Will result in this response with a HTTP status of 422</p>
+				<pre><code>{
+  <span class="hljs-attr">&quot;status&quot;</span>: <span class="hljs-string">&quot;error&quot;</span>,
+  <span class="hljs-attr">&quot;message&quot;</span>: <span class="hljs-string">&quot;Could not process data&quot;</span>
+}</code></pre>
+				<p>Some predefined ones are derived from the builder but you can easaly create yours</p>
+				<ul>
+					<li><strong>simpleError</strong>: <code>expose=false</code> and <code>code=500</code> provided</li>
+					<li><strong>exposedError</strong>: <code>expose=true</code> provided</li>
+					<li><strong>nonExposedError</strong>: <code>expose=false</code> provided</li>
+					<li><strong>notFoundError</strong>: <code>expose=true</code> and <code>code=404</code> provided</li>
+					<li><strong>notAuthorizedError</strong>: <code>expose=true</code> and <code>code=403</code> provided</li>
+					<li><strong>unprocessableError</strong>: <code>expose=true</code> and <code>code=422</code> provided</li>
+				</ul>
+				<p>Error builder in action</p>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> notAuthorizedError = errorBuilder(<span class="hljs-literal">true</span>)(<span class="hljs-number">403</span>);</code></pre>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(
+  <span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> authorizationToken = box.event.headers.authorization;
+
+    <span class="hljs-keyword">if</span> (!authorizationToken) {
+      box.error = notAuthorizedError(<span class="hljs-string">&quot;You can&#x27;t do that&quot;</span>);
+
+      <span class="hljs-keyword">return</span> box;
+    }
+
+    <span class="hljs-keyword">const</span> body = <span class="hljs-built_in">JSON</span>.parse(box.event.body);
+
+    box.state.parsedBody = body;
+
+    <span class="hljs-keyword">return</span> box;
+  },
+)();</code></pre>
+				<a href="#extra-error-handler" id="extra-error-handler" style="color: inherit; text-decoration: none;">
+					<h3>Extra Error Handler</h3>
+				</a>
+				<p>If you wish to have extra logic triggered when an error occurre (send log to remote place, call an other AWS service..) you can provide <code>lambdaFlow</code> with an extra function.</p>
+				<pre><code class="language-js"><span class="hljs-built_in">exports</span>.handler = lambdaFlow(
+  <span class="hljs-keyword">async</span> (box) =&gt; {
+    <span class="hljs-keyword">try</span>{
+      <span class="hljs-keyword">const</span> product = <span class="hljs-keyword">await</span> database(<span class="hljs-string">&quot;product&quot;</span>).where(
+        <span class="hljs-string">&quot;id&quot;</span>,
+        box.state.parsedBody.requestId
+      );
+
+      box.body = product; <span class="hljs-comment">// Request body that will be returned</span>
+      body.statusCode = <span class="hljs-number">200</span>; <span class="hljs-comment">// HTTP status that will be returned</span>
+    } <span class="hljs-keyword">catch</span> (error) {
+      box.error = notFoundError(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">&quot;Could not find this product&quot;</span>));
+    }
+      <span class="hljs-keyword">return</span> box;
+    }
+<span class="hljs-comment">// Extra error handler</span>
+)(<span class="hljs-function">(<span class="hljs-params">box</span>) =&gt;</span> {
+  sendLogs(box.error)
+});</code></pre>
+				<ul>
+					<li>In the error handler you will have access to the whole box that caused the error and the error itself</li>
+					<li>The box in the error handler is a copy of the box that will be return, mutating it will not change the response</li>
+				</ul>
+				<a href="#the-flow-and-it39s-box-recap" id="the-flow-and-it39s-box-recap" style="color: inherit; text-decoration: none;">
+					<h2>The Flow and it&#39;s Box Recap</h2>
+				</a>
+				<p>A <em>flow</em> is similar to a pipe fonction in functional programming, you can combine your functions from left to right, and the <em>box</em> will flow thought them, you <strong>need to return the box</strong> at the end of your function so it can be passed on to the next function of the flow.</p>
+				<p>Those are the keys accessible inside the box</p>
+				<ul>
+					<li><strong>event</strong>: is the event object generated by APIGateway</li>
+					<li><strong>context</strong>: is the context of the Lambda function executing</li>
+					<li><strong>callback</strong>: is a function that you can call in non-async lambda function handlers to send a response</li>
+					<li><strong>state</strong>: is a mutable key that you can use to pass data from one function to another</li>
+					<li><strong>error</strong>: you can attach an error to the error key, doing so will bypass other functions of the flow, only the error handler will be trigger, you can control wether you want to expose this error or not </li>
+				</ul>
+				<p>Those are the keys of the box that you can change on the box to modify your response</p>
+				<ul>
+					<li><strong>body</strong>: will the body that will be send by your HTTP response</li>
+					<li><strong>statusCode</strong>: will be the HTTP status code of your response</li>
+					<li><strong>cookies</strong>: will the the cookies attached to your response</li>
+					<li><strong>headers</strong>: will the the headers attached to your response</li>
+					<li><strong>multiValueHeaders</strong>: v1 support for multiValueHeaders</li>
+					<li><strong>isBase64Encoded</strong>: will indicate if your payload is Base64 encoded</li>
+				</ul>
+				<p><strong>If you want to pass data from one function to an other you can use the state key</strong></p>
+				<p>The types looks like this:</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">type</span> FlowBox = {
+  <span class="hljs-comment">// For access</span>
+  <span class="hljs-attr">event</span>: APIGatewayProxyEventV2;
+  context: Context;
+  callback: Callback&lt;APIGatewayProxyResultV2&gt;;
+  <span class="hljs-comment">// For response</span>
+  statusCode: <span class="hljs-built_in">number</span>;
+  headers: {
+    [header: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">boolean</span> | <span class="hljs-built_in">number</span> | <span class="hljs-built_in">string</span>;
+  };
+  body: <span class="hljs-built_in">any</span>;
+  multiValueHeaders: {
+    [header: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">Array</span>&lt;<span class="hljs-built_in">boolean</span> | <span class="hljs-built_in">number</span> | <span class="hljs-built_in">string</span>&gt;;
+  };
+  isBase64Encoded: <span class="hljs-built_in">boolean</span>;
+  cookies: <span class="hljs-built_in">string</span>[];
+  <span class="hljs-comment">// For control</span>
+  state: <span class="hljs-built_in">any</span>;
+  error: FlowError;
+};</code></pre>
+				<a href="#typescript" id="typescript" style="color: inherit; text-decoration: none;">
+					<h3>Typescript</h3>
+				</a>
+				<p>By default the <code>lambdaFlow</code> <code>box</code> event will have the types for the version 2 of APIGateway proxy, if you want to use types for version 1 you can do the following.</p>
+				<pre><code class="language-ts">lambdaFlow&lt;APIGatewayProxyHandler&gt;</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_helpers_helpers_error_.html">&quot;src/helpers/helpers-<wbr>error&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_helpers_helpers_middlewares_.html">&quot;src/helpers/helpers-<wbr>middlewares&quot;</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/_src_lambda_flow_.html">&quot;src/lambda-<wbr>flow&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
