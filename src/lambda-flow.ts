@@ -118,7 +118,7 @@ const errorOut: ErrorOut = (middleware) => async (box) =>
   // @ts-expect-error
   flow(
     R.unless(
-      flow(R.prop("error"), R.is(Object)),
+      flow(R.prop("error"), R.is(Error)),
       // TODO have a look at ramda otherwise
       tryCatchAsync(
         // @ts-expect-error
