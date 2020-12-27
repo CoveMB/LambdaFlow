@@ -20,7 +20,7 @@ it("Does not return the FlowBox", async () => {
   const flow = lambdaFlow(simpleResponse())();
   const response = await lambdaExecutor(flow);
 
-  // @ts-ignore for test
+  // @ts-expect-error
   expect(response.state).toBe(undefined);
 });
 

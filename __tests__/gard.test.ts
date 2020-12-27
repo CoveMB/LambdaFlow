@@ -1,7 +1,9 @@
+/* eslint-disable unicorn/consistent-function-scoping */
 import { FlowBox } from "../src/types";
 import { lambdaFlow } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
 
+// eslint-disable-next-line max-statements
 it("A middleware has to return a box", async () => {
   const originalLog = console.log;
 
@@ -17,7 +19,7 @@ it("A middleware has to return a box", async () => {
 
       return box;
     },
-    // @ts-ignore
+    // @ts-expect-error
     wrongMiddleware
   )();
 
@@ -49,7 +51,7 @@ it("Only allowed key of box can be mutated", async () => {
   const wrongMiddleware = (box: FlowBox) => {
     box.statusCode = 200;
     box.body = { name: true };
-    // @ts-ignore
+    // @ts-expect-error
     box.mutation = 9;
 
     return box;

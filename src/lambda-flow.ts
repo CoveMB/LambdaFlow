@@ -26,6 +26,7 @@ import {
 } from "./types";
 import enhancedErrors from "./utils/guards-reasons";
 
+// @internal
 const createBox: CreateBox = (event, context, callback) =>
   Object.seal({
     state: {},
@@ -41,6 +42,7 @@ const createBox: CreateBox = (event, context, callback) =>
     multiValueHeaders: undefined,
   });
 
+// @internal
 const errorResponse = flow(
   R.over(
     toBodyErrorResponseLens,
@@ -61,6 +63,7 @@ const errorResponse = flow(
   )
 );
 
+// @internal
 const successResponse = flow(
   R.over(toIsEncodedResponseLens, R.identity),
   R.over(toStatusResponseLens, R.unless(R.is(Number), R.always(200))),
@@ -70,6 +73,7 @@ const successResponse = flow(
   )
 );
 
+// @internal
 const returnResponse: ResponseMiddleware = async (box) =>
   flow(
     R.set(responseLens, {}),
@@ -84,6 +88,7 @@ const returnResponse: ResponseMiddleware = async (box) =>
     R.prop("response")
   )(await box) as Promise<APIGatewayProxyStructuredResultV2>;
 
+// @internal
 const validateBoxState = (middleware: FlowMiddleware) =>
   R.unless(
     R.is(Object),
@@ -97,6 +102,7 @@ const validateBoxState = (middleware: FlowMiddleware) =>
     )
   );
 
+// @internal
 const notCatchedErrors = (middleware: FlowMiddleware) => (
   error: Error,
   errorBox: FlowBoxWithError
@@ -107,30 +113,30 @@ const notCatchedErrors = (middleware: FlowMiddleware) => (
     R.tap(logError)
   );
 
+// @internal
 const errorOut: ErrorOut = (middleware) => async (box) =>
-  // @ts-ignore
+  // @ts-expect-error
   flow(
-    // @ts-ignore
     R.unless(
       flow(R.prop("error"), R.is(Object)),
-      // @ts-ignore
       // TODO have a look at ramda otherwise
       tryCatchAsync(
-        // @ts-ignore
+        // @ts-expect-error
         flow(middleware, validateBoxState(middleware)),
         notCatchedErrors(middleware)
       )
     )
-    // @ts-ignore
+    // @ts-expect-error
   )(await box);
 
+// @internal
 const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
   box
 ) =>
-  // @ts-ignore
+  // @ts-expect-error
   R.when(
     flow(R.prop("error"), R.is(Object)),
-    // @ts-ignore
+    // @ts-expect-error
     flow(R.clone, errorCallback, R.always(await box))
   )(await box);
 
@@ -142,10 +148,10 @@ const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
 const lambdaFlow: LambdaFlow = (...middlewares) => (
   errorCallback = R.identity
 ) =>
-  // @ts-ignore
+  // @ts-expect-error
   flow(
     createBox,
-    // @ts-ignore
+    // @ts-expect-error
     ...R.map(errorOut)(middlewares),
     errorCallbackHandler(errorCallback),
     returnResponse

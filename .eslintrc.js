@@ -2,7 +2,7 @@ module.exports = {
   "parserOptions": {
     "ecmaVersion": 10,
     "parser": "@typescript-eslint/parser",
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.eslint.json"
   },
   "extends": [
     "airbnb-typescript/base",
@@ -76,13 +76,21 @@ module.exports = {
     "@typescript-eslint/no-magic-numbers": 'off',
     "@typescript-eslint/no-floating-promises": ["error", { "ignoreIIFE": true }],
     "@typescript-eslint/no-duplicate-imports": "error",
+    "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/no-shadow": ["error", { "builtinGlobals": false, "hoist": "functions"}],
     // Function 
     "func-style": "off"
   },
+  "overrides":[
+    {
+      "files": ["./__tests__/**/*.ts"],
+      "env": {
+        "node": true,
+        "jest": true
+      }
+    }
+  ],
   "env": {
-    "node": true,
-    "browser": true,
-    "jest": true
+    "node": true
   },
 };

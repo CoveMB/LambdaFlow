@@ -7,7 +7,7 @@ import { boxMutated } from "./guards-messages";
 const enhancedErrors = (middleware: FlowMiddleware) =>
   R.ifElse(
     flow(
-      // @ts-ignore
+      // @ts-expect-error
       R.prop("message"),
       R.includes("object is not extensible")
     ),

@@ -7,7 +7,7 @@ import {
   simpleResponse,
 } from "../src";
 import { lambdaExecutor } from "./fixtures/helpers";
-import createHttpError from "http-errors";
+import * as createHttpError from "http-errors";
 
 it("If an error occur during the flow it is returned in the body", async () => {
   const flow = lambdaFlow((box) => {
@@ -251,7 +251,7 @@ it("If an error is attached to the box the other functions of the flow are not r
       return box;
     },
     (box) => {
-      toMutate = "mutated";
+      toMutate = "mutated2";
 
       return box;
     }
@@ -292,7 +292,7 @@ it("If is compatible with http-error", async () => {
       return box;
     },
     (box) => {
-      toMutate = "mutated";
+      toMutate = "mutated3";
 
       return box;
     }
@@ -312,11 +312,11 @@ it("If is compatible with http-error", async () => {
   let toMutate = "Not mutated";
 
   const flow = lambdaFlow(
-    (box) => {
+    () => {
       throw new createHttpError.NotFound();
     },
     (box) => {
-      toMutate = "mutated";
+      toMutate = "mutated4";
 
       return box;
     }

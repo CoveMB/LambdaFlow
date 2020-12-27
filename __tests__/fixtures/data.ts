@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import { APIGatewayProxyEvent, APIGatewayProxyEventV2 } from "aws-lambda";
 
 const lambdaContext = {

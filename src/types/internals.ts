@@ -6,6 +6,7 @@ import {
 } from "aws-lambda";
 import { FlowBox } from "./box";
 
+// @internal
 export type CreateBox = (
   event: APIGatewayProxyEventV2,
   context: Context,
