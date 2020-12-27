@@ -13,7 +13,7 @@ const errorBuilder: ErrorBuilder = (expose = false) => (statusCode = 500) => (
 ) => ({
   expose,
   statusCode,
-  message: R.when(R.is(Object), R.prop("message"))(message),
+  message: R.when(R.is(Error), R.prop("message"))(message),
   error: R.unless(R.is(Object), () => new Error(message as string))(message),
 });
 
