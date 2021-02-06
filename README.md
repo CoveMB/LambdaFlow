@@ -18,7 +18,7 @@ With Yarn:
 yarn add @bjmrq/lambda-flow
 ```
 
-## Hello Word Exemple
+## Hello Word Example
 Javascript:
 ```js
 exports.handler = lambdaFlow(
