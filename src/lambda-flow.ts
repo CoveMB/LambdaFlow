@@ -149,7 +149,7 @@ const lambdaFlow: LambdaFlow = (...middlewares) => (
   errorCallback = R.identity
 ) =>
   // @ts-expect-error
-  flow(
+  R.pipe(
     createBox,
     // @ts-expect-error
     ...R.map(errorOut)(middlewares),
