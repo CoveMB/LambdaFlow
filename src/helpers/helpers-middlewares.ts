@@ -1,4 +1,3 @@
-import { flow } from "fp-ts/lib/function";
 import * as R from "ramda";
 import { FlowMiddleware } from "../types/middleware";
 
@@ -8,6 +7,6 @@ import { FlowMiddleware } from "../types/middleware";
  * @returns {FlowMiddleware} The middleware that will attach the status code you passed on the box with a {status = "success"} on the body
  */
 const simpleResponse = (status = 200): FlowMiddleware =>
-  flow(R.assoc("statusCode", status), R.assoc("body", { status: "success" }));
+  R.pipe(R.assoc("statusCode", status), R.assoc("body", { status: "success" }));
 
 export { simpleResponse };

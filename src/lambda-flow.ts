@@ -1,5 +1,4 @@
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import { flow, pipe } from "fp-ts/lib/function";
 import * as R from "ramda";
 import { ErrorCallbackHandler } from "./types/error";
 import { tryCatchAsync } from "@bjmrq/utils";
@@ -43,10 +42,10 @@ const createBox: CreateBox = (event, context, callback) =>
   });
 
 // @internal
-const errorResponse = flow(
+const errorResponse = R.pipe(
   R.over(
     toBodyErrorResponseLens,
-    flow(
+    R.pipe(
       R.ifElse(
         isErrorExposed,
         R.prop("message"),
@@ -64,7 +63,7 @@ const errorResponse = flow(
 );
 
 // @internal
-const successResponse = flow(
+const successResponse = R.pipe(
   R.over(toIsEncodedResponseLens, R.identity),
   R.over(toStatusResponseLens, R.unless(R.is(Number), R.always(200))),
   R.over(
@@ -75,13 +74,13 @@ const successResponse = flow(
 
 // @internal
 const returnResponse: ResponseMiddleware = async (box) =>
-  flow(
+  R.pipe(
     R.set(responseLens, {}),
     R.over(toCookiesResponseLens, R.identity),
     R.over(toHeadersResponseLens, R.identity),
     R.over(toMultiValueHeadersResponseLens, R.identity),
     R.ifElse(
-      flow(R.prop("error"), R.is(Object)),
+      R.pipe(R.prop("error"), R.is(Object)),
       errorResponse,
       successResponse
     ),
@@ -92,7 +91,7 @@ const returnResponse: ResponseMiddleware = async (box) =>
 const validateBoxState = (middleware: FlowMiddleware) =>
   R.unless(
     R.is(Object),
-    flow(
+    R.pipe(
       R.tap(bodyNotReturned(middleware)),
       R.always({
         error: {
@@ -107,26 +106,27 @@ const notCatchedErrors = (middleware: FlowMiddleware) => (
   error: Error,
   errorBox: FlowBoxWithError
 ) =>
-  pipe(
-    errorBox,
+  R.pipe(
+    // @ts-expect-error
     R.assoc("error", enhancedErrors(middleware)(error)),
     R.tap(logError)
-  );
+    // @ts-expect-error
+  )(errorBox);
 
 // @internal
 const errorOut: ErrorOut = (middleware) => async (box) =>
   // @ts-expect-error
-  flow(
+  R.pipe(
     R.unless(
-      flow(R.prop("error"), R.is(Object)),
+      // @ts-expect-error
+      R.pipe(R.prop("error"), R.is(Object)),
       // TODO have a look at ramda otherwise
       tryCatchAsync(
         // @ts-expect-error
-        flow(middleware, validateBoxState(middleware)),
+        R.pipe(middleware, validateBoxState(middleware)),
         notCatchedErrors(middleware)
       )
     )
-    // @ts-expect-error
   )(await box);
 
 // @internal
@@ -135,9 +135,10 @@ const errorCallbackHandler: ErrorCallbackHandler = (errorCallback) => async (
 ) =>
   // @ts-expect-error
   R.when(
-    flow(R.prop("error"), R.is(Object)),
     // @ts-expect-error
-    flow(R.clone, errorCallback, R.always(await box))
+    R.pipe(R.prop("error"), R.is(Object)),
+    R.pipe(R.clone, errorCallback, R.always(await box))
+    // @ts-expect-error
   )(await box);
 
 /**
